@@ -5,3 +5,7 @@ ATMAbout = Ce module a été développé par <a href="http://www.atm-consulting.
 
 RelatedSetup = Configuration du module Related
 RelatedAbout = A propos du module Related
+
+AddRelated=Ajouter ce lien
+ElementToLink=Elements particuliers liés
+RelationAdded=Relation ajoutée

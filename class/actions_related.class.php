@@ -59,29 +59,185 @@ class ActionsRelated
 	 * @param   HookManager     $hookmanager    Hook manager propagated to allow calling another hook
 	 * @return  int                             < 0 on error, 0 on success, 1 to replace standard code
 	 */
-	function doActions($parameters, &$object, &$action, $hookmanager)
+	function showLinkedObjectBlock($parameters, &$object, &$action, $hookmanager)
 	{
 		$error = 0; // Error counter
-		$myvalue = 'test'; // A result value
-
-		print_r($parameters);
-		echo "action: " . $action;
-		print_r($object);
-
-		if (in_array('somecontext', explode(':', $parameters['context'])))
+		
+		
+		if (in_array('commonobject', explode(':', $parameters['context'])))
 		{
-		  // do something only for the context 'somecontext'
+		 	global $langs, $db;
+		 
+		 	$langs->load('related@related');
+		 
+		 	if(GETPOST('action') == 'add_related_link') {
+		 		
+				$type = GETPOST('type_related_object');
+				if($type == 'projet') $type = 'project';
+				else if($type == 'invoice') $type = 'facture';
+				else if($type == 'company') $type = 'societe';
+				
+				$object->add_object_linked( $type , GETPOST('id_related_object') );
+				$object->fetchObjectLinked();
+				
+				setEventMessage($langs->trans('RelationAdded'));
+		 	}
+		//var_dump($object->linkedObjectsIds);
+		 	?>
+		 	
+		 		<form name="formLinkObj" action="<?php echo $_SERVER['PHP_SELF']; ?>" method="post">
+		 			<input type="hidden" name="action" value="add_related_link"  />
+		 			<input type="hidden" name="id" value="<?php echo GETPOST('id'); ?>"  />
+		 			<input type="hidden" name="facid" value="<?php echo GETPOST('facid'); ?>"  />
+		 			<br>
+					<div class="titre"><?php echo $langs->trans('ElementToLink'); ?></div>
+			 		
+			 		<input type="hidden" id="id_related_object" name="id_related_object" value=""  />
+			 		<input type="hidden" id="type_related_object" name="type_related_object" value=""  /> 
+			 		
+			 		
+			 		<table class="noborder allwidth">
+						<tr class="liste_titre">
+							<td><?php echo $langs->trans("Ref"); ?> <input type="text" id="add_related_object" name="add_related_object" value="" class="flat" /> <input type="submit" id="bt_add_related_object" name="bt_add_related_object" class="button" value="<?php echo $langs->trans('AddRelated') ?>" style="display:none" /></td>
+							<td align="center"><?php echo $langs->trans("Date"); ?></td>
+							<td align="center"><?php echo $langs->trans("Status"); ?></td>
+							
+						</tr>
+						<?	
+							$class = 'pair';
+							foreach($object->linkedObjectsIds as $objecttype => &$TSubIdObject) {
+								
+								if(isset( $object->linkedObjects[$objecttype] ) && $objecttype!='societe' && $objecttype!='product') continue; // on affiche ici que les objects non géré en natif
+								
+								foreach($TSubIdObject as $id_object) {
+									
+									$classname = ucfirst($objecttype);
+									if($objecttype=='task') {
+										dol_include_once('/projet/class/task.class.php');
+									}
+									else if($objecttype=='event') {
+										dol_include_once('/comm/action/class/actioncomm.class.php');
+										$classname='ActionComm';
+									}
+									
+									$subobject =new $classname($db);
+									$subobject->fetch($id_object);
+									
+									if(method_exists($subobject, 'getNomUrl')) {
+										$link = $subobject->getNomUrl(1);
+									}
+									else{
+										$link = $id_object.'/'.$classname;
+									}
+									
+									$class = ($class == 'impair') ? 'pair' : 'impair';
+										
+									$date_create = 0;
+									if(!empty($subobject->date_creation)) $date_create = $subobject->date_creation;
+									if(empty($date_create) && !empty($subobject->date_create)) $date_create = $subobject->date_create;
+									if(empty($date_create) && !empty($subobject->date_c)) $date_create = $subobject->date_c;
+									
+									
+									?>
+									<tr class="<?php echo $class ?>">
+										<td><?php echo $link; ?></td>
+										<td align="center"><?php echo !empty($date_create) ? dol_print_date($date_create,'day') : ''; ?></td>
+										<td align="center"><?php echo method_exists($object, 'getLibStatut') ? $subobject->getLibStatut(3) : 'N/A'; ?></td>
+									</tr>
+									<?
+										
+									
+									
+								}
+								
+							}
+						
+						?>
+						</table>
+			 		
+			 		
+		 		</form>
+		 		
+		 		<script type="text/javascript">
+		 			
+		 			$(document).ready(function() {
+		 				
+		 				$('#add_related_object').autocomplete({
+					      source: function( request, response ) {
+					        $.ajax({
+					          url: "<?php echo dol_buildpath('/related/script/interface.php',1) ?>",
+					          dataType: "json",
+					          data: {
+					            key: request.term
+					            ,get:'search'
+					          },
+					          success: function( data ) {
+					          	  var c = [];
+					              $.each(data, function (i, cat) {
+					              		
+					              	var first = true;					              	
+					              	$.each(cat, function(j, label) {
+					              		
+					              		if(first) {
+					              			c.push({value:i, label:i, object:'title'});
+					              			first = false;
+					              		}
+					              		
+					              		c.push({ value: j, label:'  '+label, object:i});
+					            		
+					              	});
+					                
+					                
+					              });
+					              
+					              response(c);
+					          	
+					          	
+					            
+					          }
+					        });
+					      },
+					      minLength: 1,
+					      select: function( event, ui ) {
+					    
+					       	if(ui.item.object == 'title') return false;
+					       	else {
+					       		$('#id_related_object').val(ui.item.value);
+					       		$('#add_related_object').val(ui.item.label.trim());
+					       		$('#type_related_object').val(ui.item.object);
+					       		
+					       		$('#bt_add_related_object').css('display','inline');
+					       		
+					       		return false;
+					       	}
+					       
+					      },
+					      open: function() {
+					        $( this ).removeClass( "ui-corner-all" ).addClass( "ui-corner-top" );
+					      },
+					      close: function() {
+					        $( this ).removeClass( "ui-corner-top" ).addClass( "ui-corner-all" );
+					      }
+					    });
+		 				
+		 				
+		 					
+		 			});
+		 			
+		 		</script>
+		 	
+		 	<?
+		 
 		}
 
 		if (! $error)
 		{
-			$this->results = array('myreturn' => $myvalue);
-			$this->resprints = 'A text to show';
+			
 			return 0; // or return 1 to replace standard code
 		}
 		else
 		{
-			$this->errors[] = 'Error message';
+			$this->errors[] = 'Cant link related';
 			return -1;
 		}
 	}
