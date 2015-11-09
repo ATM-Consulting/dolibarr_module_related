@@ -62,7 +62,7 @@ class ActionsRelated
 	 
 	 
 	function blockRelated($parameters, &$object, &$action, $hookmanager, $moreStyle='') {
-		global $langs, $db;
+		global $langs, $db, $user, $conf;
 		 	$error = 0; // Error counter
 		 	
 		 	$langs->load('related@related');
@@ -76,6 +76,28 @@ class ActionsRelated
 				
 				$object->add_object_linked( $type , GETPOST('id_related_object') );
 				$object->fetchObjectLinked();
+				
+				global $langs,$conf;
+
+		    	dol_include_once ('/core/class/interfaces.class.php');
+		    	$interface=new Interfaces($db);
+				
+				$object->id_related_object = GETPOST('id_related_object');
+				$object->type_related_object = $type;
+				
+		    	$result=$interface->run_triggers('RELATED_ADD_LINK',$object,$user,$langs,$conf);
+		
+		    	if ($result < 0)
+		    	{
+		    		if (!empty($this->errors))
+		    		{
+		    			$this->errors=array_merge($this->errors,$interface->errors);
+		    		}
+		    		else
+		    		{
+		    			$this->errors=$interface->errors;
+		    		}
+		    	}
 				
 				setEventMessage($langs->trans('RelationAdded'));
 		 	}
