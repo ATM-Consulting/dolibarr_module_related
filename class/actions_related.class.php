@@ -59,15 +59,12 @@ class ActionsRelated
 	 * @param   HookManager     $hookmanager    Hook manager propagated to allow calling another hook
 	 * @return  int                             < 0 on error, 0 on success, 1 to replace standard code
 	 */
-	function showLinkedObjectBlock($parameters, &$object, &$action, $hookmanager)
-	{
-		$error = 0; // Error counter
-		
-		
-		if (in_array('commonobject', explode(':', $parameters['context'])))
-		{
-		 	global $langs, $db;
-		 
+	 
+	 
+	function blockRelated($parameters, &$object, &$action, $hookmanager, $moreStyle='') {
+		global $langs, $db;
+		 	$error = 0; // Error counter
+		 	
 		 	$langs->load('related@related');
 		 
 		 	if(GETPOST('action') == 'add_related_link') {
@@ -82,9 +79,12 @@ class ActionsRelated
 				
 				setEventMessage($langs->trans('RelationAdded'));
 		 	}
+			else {
+				$object->fetchObjectLinked();	
+			}
 		//var_dump($object->linkedObjectsIds);
 		 	?>
-		 	
+		 	<div style="<?php echo $moreStyle ?>">
 		 		<form name="formLinkObj" action="<?php echo $_SERVER['PHP_SELF']; ?>" method="post">
 		 			<input type="hidden" name="action" value="add_related_link"  />
 		 			<input type="hidden" name="id" value="<?php echo GETPOST('id'); ?>"  />
@@ -103,7 +103,7 @@ class ActionsRelated
 							<td align="center"><?php echo $langs->trans("Status"); ?></td>
 							
 						</tr>
-						<?	
+						<?php
 							$class = 'pair';
 							foreach($object->linkedObjectsIds as $objecttype => &$TSubIdObject) {
 								
@@ -144,7 +144,7 @@ class ActionsRelated
 										<td align="center"><?php echo !empty($date_create) ? dol_print_date($date_create,'day') : ''; ?></td>
 										<td align="center"><?php echo method_exists($object, 'getLibStatut') ? $subobject->getLibStatut(3) : 'N/A'; ?></td>
 									</tr>
-									<?
+									<?php
 										
 									
 									
@@ -157,7 +157,7 @@ class ActionsRelated
 			 		
 			 		
 		 		</form>
-		 		
+		 	</div>
 		 		<script type="text/javascript">
 		 			
 		 			$(document).ready(function() {
@@ -226,19 +226,41 @@ class ActionsRelated
 		 			
 		 		</script>
 		 	
-		 	<?
+		 	<?php
+		 	
+		 	
+		 	if (! $error)
+			{
+				
+				return 0; // or return 1 to replace standard code
+			}
+			else
+			{
+				$this->errors[] = 'Cant link related';
+				return -1;
+			}
+	}
+	 
+	function addMoreActionsButtons($parameters, &$object, &$action, $hookmanager) {
+		if( in_array('actioncard', explode(':', $parameters['context']))) {
+			
+			
+			return $this->blockRelated($parameters, $object, $action, $hookmanager, "width:300px; clear:both;");
+		}
+		return 0;
+	}
+	 
+	function showLinkedObjectBlock($parameters, &$object, &$action, $hookmanager)
+	{
+		
+		
+		if (in_array('commonobject', explode(':', $parameters['context'])))  
+		
+		{
+		 	return $this->blockRelated($parameters, $object, $action, $hookmanager);
 		 
 		}
 
-		if (! $error)
-		{
-			
-			return 0; // or return 1 to replace standard code
-		}
-		else
-		{
-			$this->errors[] = 'Cant link related';
-			return -1;
-		}
+		return 0;
 	}
 }
