@@ -40,6 +40,7 @@ function _search_type($type, $keyword) {
 	$id_field = 'rowid';
 	$ref_field = 'ref';
 	$ref_field2 = '';
+	$join_to_soc = false;
 	
 	if($type == 'company') {
 		$table = MAIN_DB_PREFIX.'societe';
@@ -52,7 +53,8 @@ function _search_type($type, $keyword) {
 	}
 	elseif($type == 'task') {
 		$table = MAIN_DB_PREFIX.'projet_task';
-		
+		$ref_field2 = 'label';
+		$join_to_soc = true;
 	}
 	elseif($type == 'event') {
 		$table = MAIN_DB_PREFIX.'actioncomm';
@@ -60,6 +62,7 @@ function _search_type($type, $keyword) {
 		$id_field = 'id';
 		$ref_field = 'id';
 		$ref_field2 = 'label'; 
+		$join_to_soc = true;
 	}
 	elseif($type == 'order') {
 		$table = MAIN_DB_PREFIX.'commande';
@@ -79,9 +82,34 @@ function _search_type($type, $keyword) {
 	
 	$Tab = array();
 	
-	$sql = "SELECT ".$id_field." as rowid, CONCAT(".$ref_field." ".( empty($ref_field2) ? '' : ",' ',".$ref_field2 )." ) as ref FROM ".$table." WHERE ".$ref_field." LIKE '".$keyword."%' ";
+	$sql = "SELECT t.".$id_field." as rowid, CONCAT(t.".$ref_field." ".( empty($ref_field2) ? '' : ",' ',t.".$ref_field2 )." ) as ref ";
+	
+	if($join_to_soc) {
+		if($type == 'task') {
+			$sql.=",CONCAT(p.title,', ',s.nom) as client";
+		}
+		else {
+			$sql.=",s.nom as client";
+		}	
+	} 
+	 
+	$sql.=" FROM ".$table." as t ";
+	
+	if($join_to_soc) {
+		if($type == 'task') {
+			$sql.=" LEFT JOIN ".MAIN_DB_PREFIX."projet p ON (p.rowid = t.fk_projet) ";
+			$sql.=" LEFT JOIN ".MAIN_DB_PREFIX."societe s ON (s.rowid = p.fk_soc) ";
+		}
+		else {
+			$sql.=" LEFT JOIN ".MAIN_DB_PREFIX."societe s ON (s.rowid = t.fk_soc) ";	
+		}
+		
+		
+	}
+	
+	$sql.=" WHERE t.".$ref_field." LIKE '".$keyword."%' ";
 	if(!empty($ref_field2)) {
-		$sql.=" OR ".$ref_field2." LIKE '".$keyword."%' ";
+		$sql.=" OR t.".$ref_field2." LIKE '".$keyword."%' ";
 	}
 	
 	$sql.=" LIMIT 20 ";
@@ -99,8 +127,11 @@ function _search_type($type, $keyword) {
 	}
 	else{
 		while($obj = $db->fetch_object($res)) {
-		
-			$Tab[$obj->rowid] = $obj->ref;
+			
+			$r = $obj->ref;
+			if(!empty($obj->client))$r.=', '.$obj->client;
+			
+			$Tab[$obj->rowid] = $r;
 			
 		}
 		
