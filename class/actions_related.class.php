@@ -267,7 +267,7 @@ class ActionsRelated
 		if( in_array('actioncard', explode(':', $parameters['context']))) {
 			
 			
-			return $this->blockRelated($parameters, $object, $action, $hookmanager, "width:300px; clear:both;");
+			return $this->blockRelated($parameters, $object, $action, $hookmanager, "width:50%;clear:both;margin-bottom:20px;");
 		}
 		return 0;
 	}
