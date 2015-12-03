@@ -65,6 +65,11 @@ class ActionsRelated
 		global $langs, $db, $user, $conf;
 		 	$error = 0; // Error counter
 		 	
+		 	define('INC_FROM_DOLIBARR', true);
+		 	dol_include_once('/related/config.php');
+		 	
+		 	$PDOdb = new TPDOdb;
+		 	
 		 	$langs->load('related@related');
 		 
 		 	if(GETPOST('action') == 'add_related_link') {
@@ -101,8 +106,17 @@ class ActionsRelated
 				
 				setEventMessage($langs->trans('RelationAdded'));
 		 	}
+			elseif (GETPOST('action') == 'delete_related_link') {
+				$idLink = GETPOST('id_link');
+				
+				if($idLink){
+					
+					$PDOdb->Execute("DELETE FROM ".MAIN_DB_PREFIX."element_element WHERE rowid = ".$idLink);
+					$object->fetchObjectLinked();
+				}
+			}
 			else {
-				$object->fetchObjectLinked();	
+				$object->fetchObjectLinked();
 			}
 		//var_dump($object->linkedObjectsIds);
 		 	?>
@@ -123,10 +137,11 @@ class ActionsRelated
 							<td><?php echo $langs->trans("Ref"); ?> <input type="text" id="add_related_object" name="add_related_object" value="" class="flat" /> <input type="submit" id="bt_add_related_object" name="bt_add_related_object" class="button" value="<?php echo $langs->trans('AddRelated') ?>" style="display:none" /></td>
 							<td align="center"><?php echo $langs->trans("Date"); ?></td>
 							<td align="center"><?php echo $langs->trans("Status"); ?></td>
-							
+							<td align="center"><?php echo $langs->trans("Action"); ?></td>
 						</tr>
 						<?php
 							$class = 'pair';
+
 							foreach($object->linkedObjectsIds as $objecttype => &$TSubIdObject) {
 								
 								if(isset( $object->linkedObjects[$objecttype] ) && $objecttype!='societe' && $objecttype!='product') continue; // on affiche ici que les objects non géré en natif
@@ -159,12 +174,14 @@ class ActionsRelated
 									if(empty($date_create) && !empty($subobject->date_create)) $date_create = $subobject->date_create;
 									if(empty($date_create) && !empty($subobject->date_c)) $date_create = $subobject->date_c;
 									
+									$Tids = TRequeteCore::get_id_from_what_you_want($PDOdb, MAIN_DB_PREFIX."element_element",array('fk_source'=>$id_object,'fk_target'=>$object->id,'sourcetype'=>$objecttype,'targettype'=>$object->element));
 									
 									?>
 									<tr class="<?php echo $class ?>">
 										<td><?php echo $link; ?></td>
 										<td align="center"><?php echo !empty($date_create) ? dol_print_date($date_create,'day') : ''; ?></td>
 										<td align="center"><?php echo method_exists($object, 'getLibStatut') ? $subobject->getLibStatut(3) : 'N/A'; ?></td>
+										<td align="center"><a href="?id=<?php echo $object->id; ?>&action=delete_related_link&id_link=<?php echo $Tids[0]; ?>"><?php print img_picto($langs->trans("Delete"), 'delete.png') ?></a></td>
 									</tr>
 									<?php
 										
