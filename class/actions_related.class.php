@@ -73,38 +73,44 @@ class ActionsRelated
 		 	$langs->load('related@related');
 		 
 		 	if(GETPOST('action') == 'add_related_link') {
-		 		
+		 
 				$type = GETPOST('type_related_object');
+                 
 				if($type == 'projet') $type = 'project';
 				else if($type == 'invoice') $type = 'facture';
 				else if($type == 'company') $type = 'societe';
-				
-				$object->add_object_linked( $type , GETPOST('id_related_object') );
-				$object->fetchObjectLinked();
-				
-				global $langs,$conf;
-
-		    	dol_include_once ('/core/class/interfaces.class.php');
-		    	$interface=new Interfaces($db);
-				
-				$object->id_related_object = GETPOST('id_related_object');
-				$object->type_related_object = $type;
-				
-		    	$result=$interface->run_triggers('RELATED_ADD_LINK',$object,$user,$langs,$conf);
-		
-		    	if ($result < 0)
-		    	{
-		    		if (!empty($this->errors))
-		    		{
-		    			$this->errors=array_merge($this->errors,$interface->errors);
-		    		}
-		    		else
-		    		{
-		    			$this->errors=$interface->errors;
-		    		}
-		    	}
-				
-				setEventMessage($langs->trans('RelationAdded'));
+				      
+				$res = $object->add_object_linked( $type , GETPOST('id_related_object') );
+                $object->fetchObjectLinked();
+                
+                if(empty($res))setEventMessage($langs->trans('RelationCantBeAdded' ),'errors');
+                else{
+                    
+                    global $langs,$conf;
+    
+                    dol_include_once ('/core/class/interfaces.class.php');
+                    $interface=new Interfaces($db);
+                    
+                    $object->id_related_object = GETPOST('id_related_object');
+                    $object->type_related_object = $type;
+                    
+                    $result=$interface->run_triggers('RELATED_ADD_LINK',$object,$user,$langs,$conf);
+            
+                    if ($result < 0)
+                    {
+                        if (!empty($this->errors))
+                        {
+                            $this->errors=array_merge($this->errors,$interface->errors);
+                        }
+                        else
+                        {
+                            $this->errors=$interface->errors;
+                        }
+                    }
+                    
+                    setEventMessage($langs->trans('RelationAdded'));
+                    
+                }
 		 	}
 			elseif (GETPOST('action') == 'delete_related_link') {
 				$idLink = GETPOST('id_link');
@@ -144,7 +150,7 @@ class ActionsRelated
 
 							foreach($object->linkedObjectsIds as $objecttype => &$TSubIdObject) {
 								
-								if(isset( $object->linkedObjects[$objecttype] ) && $objecttype!='societe' && $objecttype!='product') continue; // on affiche ici que les objects non géré en natif
+								if(isset( $object->linkedObjects[$objecttype] ) && $objecttype!='societe' && $objecttype!='product' && $object->element!='project') continue; // on affiche ici que les objects non géré en natif
 								
 								foreach($TSubIdObject as $id_object) {
 									
@@ -207,7 +213,7 @@ class ActionsRelated
 					          url: "<?php echo dol_buildpath('/related/script/interface.php',1) ?>",
 					          dataType: "json",
 					          data: {
-					            key: request.term
+					              key: request.term
 					            ,get:'search'
 					          },
 					          success: function( data ) {
@@ -249,7 +255,7 @@ class ActionsRelated
 					       		
 					       		return false;
 					       	}
-					       
+					                      
 					      },
 					      open: function() {
 					        $( this ).removeClass( "ui-corner-all" ).addClass( "ui-corner-top" );
@@ -302,4 +308,13 @@ class ActionsRelated
 
 		return 0;
 	}
+    
+    function mainCardTabAddMore($parameters, &$object, &$action, $hookmanager) {
+        if( in_array('projectcard', explode(':', $parameters['context']))) {
+           
+            return $this->blockRelated($parameters, $object, $action, $hookmanager, "width:50%;clear:both;margin-bottom:20px;margin-left:20px;");
+        }
+        
+    }
+    
 }
