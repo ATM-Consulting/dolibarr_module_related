@@ -89,6 +89,7 @@ class modRelated extends DolibarrModules
 		//                        );
 		$this->module_parts = array(
 			'hooks'=>array('commonobject','actioncard')
+			,'triggers' => 1
 		);
 
 		// Data directories to create when module is enabled.
