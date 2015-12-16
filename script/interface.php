@@ -20,7 +20,7 @@ function _search($keyword) {
 	
 	$Tab = array();
 	
-	$TType=array('invoice','commande','propal','projet','task','company','contact','event', 'product');
+	$TType=array('invoice','commande','propal','projet','task','company','contact','event', 'product', 'facture fournisseur', 'commande fournisseur');
 	
 	foreach($TType as $type) {
 		
@@ -78,6 +78,16 @@ function _search_type($type, $keyword) {
 		$ref_field = 'lastname';
 		
 	}
+    elseif ($type='facture fournisseur') {
+        $table=MAIN_DB_PREFIX.'facture_fourn';
+        $objname='FactureFournisseur';
+        $ref_field='ref';
+    }
+    elseif ($type='commande fournisseur'){
+        $table=MAIN_DB_PREFIX.'commande_fournisseur';
+        $objname='CommandeFournisseur';
+        $ref_field='ref';
+    }
 	
 	
 	$Tab = array();

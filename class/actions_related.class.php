@@ -64,7 +64,7 @@ class ActionsRelated
 	function blockRelated($parameters, &$object, &$action, $hookmanager, $moreStyle='') {
 		global $langs, $db, $user, $conf;
 		 	$error = 0; // Error counter
-		 	
+		 	//var_dump($objet);
 		 	define('INC_FROM_DOLIBARR', true);
 		 	dol_include_once('/related/config.php');
 		 	
@@ -79,7 +79,8 @@ class ActionsRelated
 				if($type == 'projet') $type = 'project';
 				else if($type == 'invoice') $type = 'facture';
 				else if($type == 'company') $type = 'societe';
-				      
+                else if($type=='facture fournisseur') $type= 'FactureFournisseur';
+                else if($type=='commande fournisseur') $type="CommandeFournisseur";
 				$res = $object->add_object_linked( $type , GETPOST('id_related_object') );
                 $object->fetchObjectLinked();
                 
@@ -149,7 +150,7 @@ class ActionsRelated
 							$class = 'pair';
 
 							foreach($object->linkedObjectsIds as $objecttype => &$TSubIdObject) {
-								
+								var_dump($objecttype);
 								if(isset( $object->linkedObjects[$objecttype] ) && $objecttype!='societe' && $objecttype!='product' && $object->element!='project') continue; // on affiche ici que les objects non géré en natif
 								
 								foreach($TSubIdObject as $id_object) {
