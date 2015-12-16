@@ -20,12 +20,10 @@ function _search($keyword) {
 	
 	$Tab = array();
 	
-	$TType=array('invoice','commande','propal','projet','task','company','contact','event', 'product', 'facture fournisseur', 'commande fournisseur');
-	
+	//$TType=array('invoice','commande','propal','projet','task','company','contact','event', 'product', 'facture_fournisseur', 'commande_fournisseur');
+	$TType=array('facture_fournisseur', 'commande_fournisseur');
 	foreach($TType as $type) {
-		
 		$Tab[$type] = _search_type($type, $keyword);
-		
 	}
 	
 	return $Tab;
@@ -64,7 +62,7 @@ function _search_type($type, $keyword) {
 		$ref_field2 = 'label'; 
 		$join_to_soc = true;
 	}
-	elseif($type == 'order') {
+	elseif($type == 'order' || $type == 'commande') {
 		$table = MAIN_DB_PREFIX.'commande';
 		$objname = 'Commande';
 	}
@@ -74,24 +72,35 @@ function _search_type($type, $keyword) {
 		$ref_field = 'facnumber';
 	}
 	elseif($type == 'contact') {
-		$table = MAIN_DB_PREFIX.'socpeople';
-		$ref_field = 'lastname';
-		
-	}
-    elseif ($type='facture fournisseur') {
+        $table = MAIN_DB_PREFIX.'socpeople';
+        $ref_field = 'lastname';
+        
+    }
+    elseif($type == 'propal') {
+        $table = MAIN_DB_PREFIX.'propal';
+        $ref_field = 'ref';
+        
+    }
+    elseif($type == 'product') {
+        $table = MAIN_DB_PREFIX.'product';
+        $ref_field = 'ref';
+        
+    }
+    elseif ($type=='facture_fournisseur') {
         $table=MAIN_DB_PREFIX.'facture_fourn';
-        $objname='FactureFournisseur';
+        //$id_field='rowid';
+        $objname='FactureFourn';
         $ref_field='ref';
     }
-    elseif ($type='commande fournisseur'){
+    elseif ($type=='commande_fournisseur'){
         $table=MAIN_DB_PREFIX.'commande_fournisseur';
         $objname='CommandeFournisseur';
         $ref_field='ref';
     }
 	
-	
 	$Tab = array();
 	
+    
 	$sql = "SELECT t.".$id_field." as rowid, CONCAT(t.".$ref_field." ".( empty($ref_field2) ? '' : ",' ',t.".$ref_field2 )." ) as ref ";
 	
 	if($join_to_soc) {
@@ -123,7 +132,8 @@ function _search_type($type, $keyword) {
 	}
 	
 	$sql.=" LIMIT 20 ";
-	
+	//var_dump($sql);
+    //$sql="SELECT ff.ref FROM  ".MAIN_DB_PREFIX."facture_fourn ff WHERE ";
 	$res = $db->query($sql);
 	
 	if($res === false) {
@@ -131,6 +141,7 @@ function _search_type($type, $keyword) {
 	}
 	
 	$nb_results = $db->num_rows($res);
+	
 	
 	if($nb_results == 0) {
 		return array();
@@ -144,7 +155,6 @@ function _search_type($type, $keyword) {
 			$Tab[$obj->rowid] = $r;
 			
 		}
-		
 		return $Tab;	
 	}
 	

@@ -79,8 +79,8 @@ class ActionsRelated
 				if($type == 'projet') $type = 'project';
 				else if($type == 'invoice') $type = 'facture';
 				else if($type == 'company') $type = 'societe';
-                else if($type=='facture fournisseur') $type= 'FactureFournisseur';
-                else if($type=='commande fournisseur') $type="CommandeFournisseur";
+                else if($type=='facture_fournisseur') $type= 'FactureFournisseur';
+                else if($type=='commande_fournisseur') $type="CommandeFournisseur";
 				$res = $object->add_object_linked( $type , GETPOST('id_related_object') );
                 $object->fetchObjectLinked();
                 
@@ -123,6 +123,7 @@ class ActionsRelated
 				}
 			}
 			else {
+			    //var_dump($object);
 				$object->fetchObjectLinked();
 			}
 		//var_dump($object->linkedObjectsIds);
@@ -150,7 +151,7 @@ class ActionsRelated
 							$class = 'pair';
 
 							foreach($object->linkedObjectsIds as $objecttype => &$TSubIdObject) {
-								var_dump($objecttype);
+								//var_dump($objecttype);
 								if(isset( $object->linkedObjects[$objecttype] ) && $objecttype!='societe' && $objecttype!='product' && $object->element!='project') continue; // on affiche ici que les objects non géré en natif
 								
 								foreach($TSubIdObject as $id_object) {
