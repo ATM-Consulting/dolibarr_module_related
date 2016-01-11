@@ -20,8 +20,8 @@ function _search($keyword) {
 	
 	$Tab = array();
 	
-	//$TType=array('invoice','commande','propal','projet','task','company','contact','event', 'product', 'facture_fournisseur', 'commande_fournisseur');
-	$TType=array('facture_fournisseur', 'commande_fournisseur');
+	$TType=array('invoice','commande','propal','projet','task','company','contact','event', 'product', 'facture_fournisseur', 'commande_fournisseur');
+	//$TType=array('facture_fournisseur', 'commande_fournisseur');
 	foreach($TType as $type) {
 		$Tab[$type] = _search_type($type, $keyword);
 	}
