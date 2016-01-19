@@ -160,7 +160,7 @@ class ActionsRelated
 									if($objecttype=='task') {
 										dol_include_once('/projet/class/task.class.php');
 									}
-									else if($objecttype=='event') {
+									else if($objecttype=='event' || $objecttype=='action') {
 										dol_include_once('/comm/action/class/actioncomm.class.php');
 										$classname='ActionComm';
 									}
