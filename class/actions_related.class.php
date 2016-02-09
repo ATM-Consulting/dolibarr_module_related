@@ -75,7 +75,7 @@ class ActionsRelated
 		 	if(GETPOST('action') == 'add_related_link') {
 		 
 				$type = GETPOST('type_related_object');
-                 
+                //var_dump($type);exit; 
 				if($type == 'projet') $type = 'project';
 				else if($type == 'invoice') $type = 'facture';
 				else if($type == 'company') $type = 'societe';
@@ -289,7 +289,7 @@ class ActionsRelated
 	}
 	 
 	function addMoreActionsButtons($parameters, &$object, &$action, $hookmanager) {
-		if( in_array('actioncard', explode(':', $parameters['context']))) {
+		if( $parameters['currentcontext']='actioncard' || $parameters['currentcontext']='contactcard') {
 			
 			
 			return $this->blockRelated($parameters, $object, $action, $hookmanager, "width:50%;clear:both;margin-bottom:20px;");
