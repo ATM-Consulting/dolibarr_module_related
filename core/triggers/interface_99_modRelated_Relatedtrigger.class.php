@@ -116,13 +116,16 @@ class InterfaceRelatedtrigger
         // Put here code you want to execute when a Dolibarr business events occurs.
         // Data and type of action are stored into $object and $action
         // Users
+        
+        /* POUR SUPPRESSION AUTO DES DEPENDANCES (se déclenchait sans raisons) 
+		 
         $sql = 'DELETE FROM '.MAIN_DB_PREFIX.'element_element WHERE fk_target = '.$object->id.' AND targettype = "'.$this->db->escape($object->element).'"';
         $this->db->query($sql);
 		
 		dol_syslog(
 			"Trigger '" . $this->name . "' for action '$action' launched by " . __FILE__ . ". id=" . $object->id." :: sql = $sql"
 		);
-		
+		*/
         return 0;
     }
 }

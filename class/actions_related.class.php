@@ -82,6 +82,7 @@ class ActionsRelated
                 else if($type=='facture_fournisseur') $type= 'FactureFournisseur';
                 else if($type=='commande_fournisseur') $type="CommandeFournisseur";
 				$res = $object->add_object_linked( $type , GETPOST('id_related_object') );
+				
                 $object->fetchObjectLinked();
                 
                 if(empty($res))setEventMessage($langs->trans('RelationCantBeAdded' ),'errors');
@@ -289,7 +290,7 @@ class ActionsRelated
 	}
 	 
 	function addMoreActionsButtons($parameters, &$object, &$action, $hookmanager) {
-		if( $parameters['currentcontext']='actioncard' || $parameters['currentcontext']='contactcard') {
+		if( $parameters['currentcontext']='actioncard' || $parameters['currentcontext']='contactcard' || $parameters['currentcontext']=='globalcard') {
 			
 			
 			return $this->blockRelated($parameters, $object, $action, $hookmanager, "width:50%;clear:both;margin-bottom:20px;");
