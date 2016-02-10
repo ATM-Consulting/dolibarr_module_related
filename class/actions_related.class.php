@@ -164,6 +164,8 @@ class ActionsRelated
 									else if($objecttype=='event' || $objecttype=='action') {
 										dol_include_once('/comm/action/class/actioncomm.class.php');
 										$classname='ActionComm';
+									}else if ($objecttype=='project') {
+										dol_include_once('/projet/class/project.class.php');
 									}
 									
 									$subobject =new $classname($db);
