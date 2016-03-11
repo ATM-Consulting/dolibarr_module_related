@@ -255,8 +255,8 @@ class ActionsRelated
 					          data: {
 					              key: request.term
 					            ,get:'search'
-					          },
-					          success: function( data ) {
+					          }
+					          ,success: function( data ) {
 					          	  var c = [];
 					              $.each(data, function (i, cat) {
 					              		
@@ -274,7 +274,7 @@ class ActionsRelated
 					                
 					                
 					              });
-					              
+					             
 					              response(c);
 					          	
 					          	
@@ -297,7 +297,7 @@ class ActionsRelated
 					       	}
 					                      
 					      },
-					      open: function() {
+					      open: function( event, ui ) {
 					        $( this ).removeClass( "ui-corner-all" ).addClass( "ui-corner-top" );
 					      },
 					      close: function() {
@@ -305,7 +305,17 @@ class ActionsRelated
 					      }
 					    });
 		 				
-		 				
+		 				$( "#add_related_object" ).autocomplete( "instance" )._renderItem = function( ul, item ) {
+					      	
+					      	  $li = $( "<li />" )
+								    .attr( "data-value", item.value )
+								    .append( item.label )
+								    .appendTo( ul );
+								    
+							  if(item.object=="title") $li.css("font-weight","bold");
+								    
+							  return $li;
+					    };
 		 					
 		 			});
 		 			

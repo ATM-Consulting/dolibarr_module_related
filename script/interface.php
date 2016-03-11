@@ -20,7 +20,7 @@ function _search($keyword) {
 	
 	$Tab = array();
 	
-	$TType=array('invoice','commande','propal','projet','task','company','contact','event', 'product', 'facture_fournisseur', 'commande_fournisseur');
+	$TType=array('invoice','commande','propal','projet','task','company','contact','event', 'product', 'facture_fournisseur', 'commande_fournisseur','ordre_fabrication');
 	//$TType=array('facture_fournisseur', 'commande_fournisseur');
 	foreach($TType as $type) {
 		$Tab[$type] = _search_type($type, $keyword);
@@ -31,7 +31,7 @@ function _search($keyword) {
 }
 	
 function _search_type($type, $keyword) {
-	global $db, $langs;
+	global $db, $conf, $langs;
 	
 	$table = MAIN_DB_PREFIX.$type;
 	$objname = ucfirst($type);
@@ -97,6 +97,13 @@ function _search_type($type, $keyword) {
         $objname='CommandeFournisseur';
         $ref_field='ref';
     }
+	else if(!empty($conf->of->enabled) && $type == 'ordre_fabrication') {
+		$table=MAIN_DB_PREFIX.'assetOf';
+        $objname='TAssetOf';
+        $ref_field='numero';
+		
+	}
+	
 	
 	$Tab = array();
 	
