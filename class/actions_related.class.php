@@ -80,7 +80,7 @@ class ActionsRelated
 				else if($type == 'invoice') $type = 'facture';
 				else if($type == 'company') $type = 'societe';
                 else if($type=='facture_fournisseur') $type= 'FactureFournisseur';
-                else if($type=='commande_fournisseur') $type="CommandeFournisseur";
+                else if($type=='commande_fournisseur') $type='CommandeFournisseur';
 				$res = $object->add_object_linked( $type , GETPOST('id_related_object') );
 				
                 $object->fetchObjectLinked();
@@ -156,8 +156,10 @@ class ActionsRelated
 								if(isset( $object->linkedObjects[$objecttype] ) && $objecttype!='societe' && $objecttype!='product' && $object->element!='project') continue; // on affiche ici que les objects non géré en natif
 								
 								foreach($TSubIdObject as $id_object) {
-									
+									$date_create = 0;
 									$classname = ucfirst($objecttype);
+									$statut = 'N/A';
+									
 									if($objecttype=='task') {
 										dol_include_once('/projet/class/task.class.php');
 									}
@@ -167,23 +169,56 @@ class ActionsRelated
 									}else if ($objecttype=='project') {
 										dol_include_once('/projet/class/project.class.php');
 									}
+									else if ($objecttype=='ordre_fabrication') {
+										dol_include_once('/of/class/ordre_fabrication_asset.class.php');
+										$classname='TAssetOf';
+										$abricot = true;
+									}
 									
-									$subobject =new $classname($db);
-									$subobject->fetch($id_object);
-									
-									if(method_exists($subobject, 'getNomUrl')) {
-										$link = $subobject->getNomUrl(1);
+									if(!class_exists($classname)) {
+										
+										$link='CantInstanciateClass '.$classname;
+										
+										
+									}
+									else if(!empty($abricot)) {
+										
+										if(empty($PDOdb)) $PDOdb = new TPDOdb;
+										
+										$subobject =new $classname;
+										$subobject->load($PDOdb, $id_object);
+										
+										if(method_exists($subobject, 'getNomUrl')) {
+											$link = $subobject->getNomUrl(1);
+										}
+										else{
+											$link = $id_object.'/'.$classname;
+										}
+										
+										$class = ($class == 'impair') ? 'pair' : 'impair';
+											
+										$date_create = $subobject->date_cre;
+										if(method_exists($subobject, 'getLibStatut')) $statut = $subobject->getLibStatut(3);
 									}
 									else{
-										$link = $id_object.'/'.$classname;
-									}
-									
-									$class = ($class == 'impair') ? 'pair' : 'impair';
+										$subobject =new $classname($db);
+										$subobject->fetch($id_object);
 										
-									$date_create = 0;
-									if(!empty($subobject->date_creation)) $date_create = $subobject->date_creation;
-									if(empty($date_create) && !empty($subobject->date_create)) $date_create = $subobject->date_create;
-									if(empty($date_create) && !empty($subobject->date_c)) $date_create = $subobject->date_c;
+										if(method_exists($subobject, 'getNomUrl')) {
+											$link = $subobject->getNomUrl(1);
+										}
+										else{
+											$link = $id_object.'/'.$classname;
+										}
+										
+										$class = ($class == 'impair') ? 'pair' : 'impair';
+											
+										if(!empty($subobject->date_creation)) $date_create = $subobject->date_creation;
+										if(empty($date_create) && !empty($subobject->date_create)) $date_create = $subobject->date_create;
+										if(empty($date_create) && !empty($subobject->date_c)) $date_create = $subobject->date_c;
+										
+										if(method_exists($subobject, 'getLibStatut')) $statut = $subobject->getLibStatut(3);
+									}
 									
 									$Tids = TRequeteCore::get_id_from_what_you_want($PDOdb, MAIN_DB_PREFIX."element_element",array('fk_source'=>$id_object,'fk_target'=>$object->id,'sourcetype'=>$objecttype,'targettype'=>$object->element));
 									
@@ -191,7 +226,7 @@ class ActionsRelated
 									<tr class="<?php echo $class ?>">
 										<td><?php echo $link; ?></td>
 										<td align="center"><?php echo !empty($date_create) ? dol_print_date($date_create,'day') : ''; ?></td>
-										<td align="center"><?php echo method_exists($object, 'getLibStatut') ? $subobject->getLibStatut(3) : 'N/A'; ?></td>
+										<td align="center"><?php echo $statut; ?></td>
 										<td align="center"><a href="?id=<?php echo $object->id; ?>&action=delete_related_link&id_link=<?php echo $Tids[0]; ?>"><?php print img_picto($langs->trans("Delete"), 'delete.png') ?></a></td>
 									</tr>
 									<?php
