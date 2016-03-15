@@ -17,10 +17,16 @@
 	}
 
 function _search($keyword) {
+	global $db, $conf, $langs;
 	
 	$Tab = array();
 	
-	$TType=array('invoice','commande','propal','projet','task','company','contact','event', 'product', 'facture_fournisseur', 'commande_fournisseur','ordre_fabrication');
+	$TType=array('invoice','commande','propal','projet','task','company','contact','event', 'product', 'facture_fournisseur', 'commande_fournisseur');
+	
+	if(!empty($conf->of->enabled)) {
+		$TType[] = 'ordre_fabrication';
+	}
+	
 	//$TType=array('facture_fournisseur', 'commande_fournisseur');
 	foreach($TType as $type) {
 		$Tab[$type] = _search_type($type, $keyword);
