@@ -79,8 +79,8 @@ class ActionsRelated
 				if($type == 'projet') $type = 'project';
 				else if($type == 'invoice') $type = 'facture';
 				else if($type == 'company') $type = 'societe';
-                else if($type=='facture_fournisseur') $type= 'FactureFournisseur';
-                else if($type=='commande_fournisseur') $type='CommandeFournisseur';
+                else if($type=='facture_fournisseur') $type= 'invoice_supplier';
+                else if($type=='commande_fournisseur') $type='order_supplier';
 				$res = $object->add_object_linked( $type , GETPOST('id_related_object') );
 				
                 $object->fetchObjectLinked();
