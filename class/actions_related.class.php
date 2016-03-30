@@ -62,7 +62,7 @@ class ActionsRelated
 	 
 	 
 	function blockRelated($parameters, &$object, &$action, $hookmanager, $moreStyle='') {
-		global $langs, $db, $user, $conf;
+		global $langs, $db, $user, $conf, $related_link_added;
 		 	$error = 0; // Error counter
 		 	//var_dump($objet);
 		 	define('INC_FROM_DOLIBARR', true);
@@ -72,7 +72,7 @@ class ActionsRelated
 		 	
 		 	$langs->load('related@related');
 		 
-		 	if(GETPOST('action') == 'add_related_link') {
+		 	if(GETPOST('action') == 'add_related_link' && !$related_link_added) {
 		 
 				$type = GETPOST('type_related_object');
                 //var_dump($type);exit; 
@@ -87,7 +87,7 @@ class ActionsRelated
                 
                 if(empty($res))setEventMessage($langs->trans('RelationCantBeAdded' ),'errors');
                 else{
-                    
+                    $related_link_added=true;
                     global $langs,$conf;
     
                     dol_include_once ('/core/class/interfaces.class.php');
@@ -129,7 +129,7 @@ class ActionsRelated
 			}
 		//var_dump($object->linkedObjectsIds);
 		 	?>
-		 	<div style="<?php echo $moreStyle ?>">
+		 	<div class="blockrelated_content" style="<?php echo $moreStyle ?>">
 		 		<form name="formLinkObj" action="<?php echo $_SERVER['PHP_SELF']; ?>" method="post">
 		 			<input type="hidden" name="action" value="add_related_link"  />
 		 			<input type="hidden" name="id" value="<?php echo GETPOST('id'); ?>"  />
@@ -317,6 +317,21 @@ class ActionsRelated
 							  return $li;
 					    };
 		 					
+		 				
+		 				var blockrelated = $('div.tabsAction .blockrelated_content');
+		 				if (blockrelated.length == 1)
+		 				{
+		 					if ($('.blockrelated_content').length > 1)
+		 					{
+		 						blockrelated.remove();
+		 					}
+		 					else
+		 					{
+			 					$('div.tabsAction').after(blockrelated.clone());
+			 					blockrelated.remove();
+		 					}
+		 				}
+		 				
 		 			});
 		 			
 		 		</script>
@@ -344,7 +359,7 @@ class ActionsRelated
 		}
 		return 0;
 	}
-	 
+	
 	function showLinkedObjectBlock($parameters, &$object, &$action, $hookmanager)
 	{
 		
