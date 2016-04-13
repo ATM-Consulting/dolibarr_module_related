@@ -54,6 +54,7 @@ function _search_type($type, $keyword) {
 	elseif($type == 'projet') {
 		$table = MAIN_DB_PREFIX.'projet';
 		$objname = 'Project';
+		$join_to_soc = true;
 	}
 	elseif($type == 'task') {
 		$table = MAIN_DB_PREFIX.'projet_task';
@@ -76,16 +77,17 @@ function _search_type($type, $keyword) {
 		$table = MAIN_DB_PREFIX.'facture';
 		$objname = 'Facture';
 		$ref_field = 'facnumber';
+		$join_to_soc = true;
 	}
 	elseif($type == 'contact') {
         $table = MAIN_DB_PREFIX.'socpeople';
         $ref_field = 'lastname';
-        
+		$join_to_soc = true;
     }
     elseif($type == 'propal') {
         $table = MAIN_DB_PREFIX.'propal';
         $ref_field = 'ref';
-        
+        $join_to_soc = true;
     }
     elseif($type == 'product') {
         $table = MAIN_DB_PREFIX.'product';
@@ -97,11 +99,13 @@ function _search_type($type, $keyword) {
         //$id_field='rowid';
         $objname='FactureFourn';
         $ref_field='ref';
+		$join_to_soc = true;
     }
     elseif ($type=='commande_fournisseur'){
         $table=MAIN_DB_PREFIX.'commande_fournisseur';
         $objname='CommandeFournisseur';
         $ref_field='ref';
+		$join_to_soc = true;
     }
 	else if(!empty($conf->of->enabled) && $type == 'ordre_fabrication') {
 		$table=MAIN_DB_PREFIX.'assetOf';
