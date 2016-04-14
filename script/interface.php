@@ -58,10 +58,12 @@ function _search_type($type, $keyword) {
 	}
 	elseif($type == 'task') {
 		$table = MAIN_DB_PREFIX.'projet_task';
-		$ref_field2 = 'label';
+		$objname = 'Task';
+		$id_field = 'rowid';
+		$ref_field = 'ref';
 		$join_to_soc = true;
 	}
-	elseif($type == 'event') {
+	elseif($type == 'event' || $type=='action') {
 		$table = MAIN_DB_PREFIX.'actioncomm';
 		$objname = 'ActionComm';
 		$id_field = 'id';

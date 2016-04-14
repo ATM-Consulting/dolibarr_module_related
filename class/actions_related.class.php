@@ -352,7 +352,7 @@ class ActionsRelated
 	}
 	 
 	function addMoreActionsButtons($parameters, &$object, &$action, $hookmanager) {
-		if( $parameters['currentcontext']='actioncard' || $parameters['currentcontext']='contactcard' || $parameters['currentcontext']=='globalcard') {
+		if( $parameters['currentcontext']='actioncard' || $parameters['currentcontext']='contactcard' || $parameters['currentcontext']=='globalcard' || $parameters['currentcontext']=='projecttaskcard') {
 			
 			if (!empty($object))return $this->blockRelated($parameters, $object, $action, $hookmanager, "width:50%;clear:both;margin-bottom:20px;");
 		}
@@ -380,5 +380,12 @@ class ActionsRelated
         }
         
     }
+	
+	/*function formObjectOptions($parameters, &$object, &$action, $hookmanager){
+		if( in_array('projecttaskcard', explode(':', $parameters['context']))) {
+           
+            return $this->blockRelated($parameters, $object, $action, $hookmanager, "width:50%;clear:both;margin-bottom:20px;margin-left:20px;");
+        }
+	}*/
     
 }
