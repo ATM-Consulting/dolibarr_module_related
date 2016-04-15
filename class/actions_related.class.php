@@ -63,6 +63,7 @@ class ActionsRelated
 	 
 	function blockRelated($parameters, &$object, &$action, $hookmanager, $moreStyle='') {
 		global $langs, $db, $user, $conf, $related_link_added;
+		
 		 	$error = 0; // Error counter
 		 	//var_dump($objet);
 		 	define('INC_FROM_DOLIBARR', true);
@@ -247,9 +248,11 @@ class ActionsRelated
 		 		<script type="text/javascript">
 		 			
 		 			$(document).ready(function() {
-		 				
+		 				console.log('tata');
 		 				$('#add_related_object').autocomplete({
+		 					console.log('tata');
 					      source: function( request, response ) {
+					      	
 					        $.ajax({
 					          url: "<?php echo dol_buildpath('/related/script/interface.php',1) ?>",
 					          dataType: "json",
@@ -353,8 +356,9 @@ class ActionsRelated
 	}
 	 
 	function addMoreActionsButtons($parameters, &$object, &$action, $hookmanager) {
-		if( $parameters['currentcontext']='actioncard' || $parameters['currentcontext']='contactcard' || $parameters['currentcontext']=='globalcard' || $parameters['currentcontext']=='projecttaskcard') {
-			
+		var_dump($parameters);
+		if( $parameters['currentcontext']='actioncard' || $parameters['currentcontext']='contactcard' || $parameters['currentcontext']=='thirdpartycard' || $parameters['currentcontext']=='projecttaskcard') {
+			var_dump('toto');
 			if (!empty($object))return $this->blockRelated($parameters, $object, $action, $hookmanager, "width:50%;clear:both;margin-bottom:20px;");
 		}
 		return 0;
