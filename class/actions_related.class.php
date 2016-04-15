@@ -353,9 +353,9 @@ class ActionsRelated
 	}
 	 
 	function addMoreActionsButtons($parameters, &$object, &$action, $hookmanager) {
-		var_dump($parameters);
+		//var_dump($parameters);
 		if( $parameters['currentcontext']='actioncard' || $parameters['currentcontext']='contactcard' || $parameters['currentcontext']=='thirdpartycard' || $parameters['currentcontext']=='projecttaskcard') {
-			var_dump('toto');
+			//var_dump('toto');
 			if (!empty($object))return $this->blockRelated($parameters, $object, $action, $hookmanager, "width:50%;clear:both;margin-bottom:20px;");
 		}
 		return 0;
