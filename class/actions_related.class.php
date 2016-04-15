@@ -125,7 +125,7 @@ class ActionsRelated
 			}
 			else {
 			    //var_dump($object);
-				$object->fetchObjectLinked();
+				$object->fetchObjectLinked();;
 			}
 		//var_dump($object->linkedObjectsIds);
 		 	?>
@@ -160,8 +160,9 @@ class ActionsRelated
 									$classname = ucfirst($objecttype);
 									$statut = 'N/A';
 									
-									if($objecttype=='task') {
+									if($objecttype=='task' || $objecttype=='project_task') {
 										dol_include_once('/projet/class/task.class.php');
+										$classname='Task';
 									}
 									else if($objecttype=='event' || $objecttype=='action') {
 										dol_include_once('/comm/action/class/actioncomm.class.php');

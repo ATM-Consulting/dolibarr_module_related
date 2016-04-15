@@ -56,7 +56,7 @@ function _search_type($type, $keyword) {
 		$objname = 'Project';
 		$join_to_soc = true;
 	}
-	elseif($type == 'task') {
+	elseif($type == 'task' || $type == 'project_task') {
 		$table = MAIN_DB_PREFIX.'projet_task';
 		$objname = 'Task';
 		$id_field = 'rowid';
