@@ -63,7 +63,6 @@ class ActionsRelated
 	 
 	function blockRelated($parameters, &$object, &$action, $hookmanager, $moreStyle='') {
 		global $langs, $db, $user, $conf, $related_link_added;
-		
 		 	$error = 0; // Error counter
 		 	//var_dump($objet);
 		 	define('INC_FROM_DOLIBARR', true);
@@ -248,11 +247,9 @@ class ActionsRelated
 		 		<script type="text/javascript">
 		 			
 		 			$(document).ready(function() {
-		 				console.log('tata');
+		 				
 		 				$('#add_related_object').autocomplete({
-		 					console.log('tata');
 					      source: function( request, response ) {
-					      	
 					        $.ajax({
 					          url: "<?php echo dol_buildpath('/related/script/interface.php',1) ?>",
 					          dataType: "json",
