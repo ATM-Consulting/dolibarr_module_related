@@ -74,6 +74,7 @@ function _search_type($type, $keyword) {
 	elseif($type == 'order' || $type == 'commande') {
 		$table = MAIN_DB_PREFIX.'commande';
 		$objname = 'Commande';
+		$join_to_soc = true;
 	}
 	elseif($type == 'invoice') {
 		$table = MAIN_DB_PREFIX.'facture';
@@ -125,6 +126,9 @@ function _search_type($type, $keyword) {
 	if($join_to_soc) {
 		if($type == 'task') {
 			$sql.=",CONCAT(p.title,', ',s.nom) as client";
+		}
+		else if($type == 'order' || $type == 'commande') {
+			$sql.=",CONCAT(s.nom , ', Date : ' , DATE_FORMAT(t.date_commande,'%m-%d-%Y')) as client";
 		}
 		else {
 			$sql.=",s.nom as client";
