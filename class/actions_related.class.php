@@ -153,7 +153,8 @@ class ActionsRelated
 
 							foreach($object->linkedObjectsIds as $objecttype => &$TSubIdObject) {
 								//var_dump($objecttype);
-								if(isset( $object->linkedObjects[$objecttype] ) && $objecttype!='societe' && $objecttype!='product' && $object->element!='project') continue; // on affiche ici que les objects non géré en natif
+								
+								if(isset( $object->linkedObjects[$objecttype] )&& $objecttype!='lead' && $objecttype!='societe' && $objecttype!='product' && $object->element!='project') continue; // on affiche ici que les objects non géré en natif
 								
 								foreach($TSubIdObject as $id_object) {
 									$date_create = 0;
@@ -169,6 +170,9 @@ class ActionsRelated
 										$classname='ActionComm';
 									}else if ($objecttype=='project') {
 										dol_include_once('/projet/class/project.class.php');
+									}
+									else if ($objecttype=='lead') {
+										dol_include_once('/lead/class/lead.class.php');
 									}
 									else if ($objecttype=='ordre_fabrication') {
 										dol_include_once('/of/class/ordre_fabrication_asset.class.php');
