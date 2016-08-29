@@ -179,6 +179,14 @@ class ActionsRelated
 										$classname='TAssetOf';
 										$abricot = true;
 									}
+									else if ($objecttype=='shipping') {
+										dol_include_once('/expedition/class/expedition.class.php');
+										$classname='Expedition';
+									}
+									else if ($objecttype=='order_supplier') {
+										dol_include_once('/fourn/class/fournisseur.commande.class.php');
+										$classname='CommandeFournisseur';
+									}
 									
 									if(!class_exists($classname)) {
 										
