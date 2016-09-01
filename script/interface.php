@@ -54,13 +54,16 @@ function _search_type($type, $keyword) {
 	elseif($type == 'projet') {
 		$table = MAIN_DB_PREFIX.'projet';
 		$objname = 'Project';
-	}
-	elseif($type == 'task') {
-		$table = MAIN_DB_PREFIX.'projet_task';
-		$ref_field2 = 'label';
 		$join_to_soc = true;
 	}
-	elseif($type == 'event') {
+	elseif($type == 'task' || $type == 'project_task') {
+		$table = MAIN_DB_PREFIX.'projet_task';
+		$objname = 'Task';
+		$id_field = 'rowid';
+		$ref_field = 'ref';
+		$join_to_soc = true;
+	}
+	elseif($type == 'event' || $type=='action') {
 		$table = MAIN_DB_PREFIX.'actioncomm';
 		$objname = 'ActionComm';
 		$id_field = 'id';
@@ -71,21 +74,23 @@ function _search_type($type, $keyword) {
 	elseif($type == 'order' || $type == 'commande') {
 		$table = MAIN_DB_PREFIX.'commande';
 		$objname = 'Commande';
+		$join_to_soc = true;
 	}
 	elseif($type == 'invoice') {
 		$table = MAIN_DB_PREFIX.'facture';
 		$objname = 'Facture';
 		$ref_field = 'facnumber';
+		$join_to_soc = true;
 	}
 	elseif($type == 'contact') {
         $table = MAIN_DB_PREFIX.'socpeople';
         $ref_field = 'lastname';
-        
+		$join_to_soc = true;
     }
     elseif($type == 'propal') {
         $table = MAIN_DB_PREFIX.'propal';
         $ref_field = 'ref';
-        
+        $join_to_soc = true;
     }
     elseif($type == 'product') {
         $table = MAIN_DB_PREFIX.'product';
@@ -97,11 +102,13 @@ function _search_type($type, $keyword) {
         //$id_field='rowid';
         $objname='FactureFourn';
         $ref_field='ref';
+		$join_to_soc = true;
     }
     elseif ($type=='commande_fournisseur'){
         $table=MAIN_DB_PREFIX.'commande_fournisseur';
         $objname='CommandeFournisseur';
         $ref_field='ref';
+		$join_to_soc = true;
     }
 	else if(!empty($conf->of->enabled) && $type == 'ordre_fabrication') {
 		$table=MAIN_DB_PREFIX.'assetOf';
@@ -119,6 +126,9 @@ function _search_type($type, $keyword) {
 	if($join_to_soc) {
 		if($type == 'task') {
 			$sql.=",CONCAT(p.title,', ',s.nom) as client";
+		}
+		else if($type == 'order' || $type == 'commande') {
+			$sql.=",CONCAT(s.nom , ', Date : ' , DATE_FORMAT(t.date_commande,'%m-%d-%Y')) as client";
 		}
 		else {
 			$sql.=",s.nom as client";
