@@ -125,7 +125,7 @@ class ActionsRelated
 			}
 			else {
 			    //var_dump($object);
-				$object->fetchObjectLinked();
+				if (empty($object->linkedObjects)) $object->fetchObjectLinked();
 			}
 		//var_dump($object->linkedObjectsIds);
 		 	?>
