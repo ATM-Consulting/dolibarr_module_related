@@ -145,12 +145,17 @@ function _search_type($type, $keyword) {
 		else {
 			$sql.=" LEFT JOIN ".MAIN_DB_PREFIX."societe s ON (s.rowid = t.fk_soc) ";	
 		}
-		
-		
 	}
 	
-	$sql.=" WHERE t.".$ref_field." LIKE '".$keyword."%' ";
-	if(!empty($ref_field2)) {
+	if ($db->type == 'pgsql' && ($ref_field=='id' || $ref_field=='rowid')) {
+		$sql.=" WHERE CAST(t.".$ref_field." AS TEXT) LIKE '".$keyword."%' ";
+	} else {
+		$sql.=" WHERE t.".$ref_field." LIKE '".$keyword."%' ";
+	}
+
+	if (!empty($ref_field2) && $db->type == 'pgsql' && ($ref_field2=='id' || $ref_field2=='rowid')) {
+		$sql.=" OR CAST(t.".$ref_field2." AS TEXT) LIKE '".$keyword."%' ";
+	} elseif (!empty($ref_field2)) {
 		$sql.=" OR t.".$ref_field2." LIKE '".$keyword."%' ";
 	}
 	
