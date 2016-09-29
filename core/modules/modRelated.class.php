@@ -88,7 +88,7 @@ class modRelated extends DolibarrModules
 		//							'workflow' => array('WORKFLOW_MODULE1_YOURACTIONTYPE_MODULE2'=>array('enabled'=>'! empty($conf->module1->enabled) && ! empty($conf->module2->enabled)', 'picto'=>'yourpicto@related')) // Set here all workflow context managed by module
 		//                        );
 		$this->module_parts = array(
-			'hooks'=>array('commonobject','actioncard','projectcard', 'contactcard', 'thirdpartycard', 'projecttaskcard')
+			'hooks'=>array('commonobject','actioncard','projectcard', 'contactcard', 'thirdpartycard', 'projecttaskcard','interventioncard')
 			,'triggers' => 1
 		);
 
@@ -250,7 +250,7 @@ class modRelated extends DolibarrModules
 	function init($options='')
 	{
 		$sql = array();
-		
+
 		define('INC_FROM_DOLIBARR',true);
 
 		dol_include_once('/related/config.php');

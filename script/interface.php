@@ -21,7 +21,7 @@ function _search($keyword) {
 
 	$Tab = array();
 
-	$TType=array('invoice','commande','propal','projet','task','company','contact','event', 'product', 'facture_fournisseur', 'commande_fournisseur');
+	$TType=array('invoice','commande','propal','projet','task','company','contact','event', 'product', 'facture_fournisseur', 'commande_fournisseur','fichinter');
 
 	if(!empty($conf->of->enabled)) {
 		$TType[] = 'ordre_fabrication';
@@ -109,6 +109,12 @@ function _search_type($type, $keyword) {
         $objname='CommandeFournisseur';
         $ref_field='ref';
 		$join_to_soc = true;
+    }
+    elseif ($type=='fichinter'){
+    	$table=MAIN_DB_PREFIX.'fichinter';
+    	$objname='Fichinter';
+    	$ref_field='ref';
+    	$join_to_soc = true;
     }
 	else if(!empty($conf->of->enabled) && $type == 'ordre_fabrication') {
 		$table=MAIN_DB_PREFIX.'assetOf';
