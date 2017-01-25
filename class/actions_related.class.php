@@ -165,6 +165,7 @@ class ActionsRelated
 									}
 									else if($objecttype=='event' || $objecttype=='action') {
 										dol_include_once('/comm/action/class/actioncomm.class.php');
+										$date_field = 'datep';
 										$classname='ActionComm';
 									}else if ($objecttype=='project') {
 										dol_include_once('/projet/class/project.class.php');
@@ -212,10 +213,13 @@ class ActionsRelated
 										}
 
 										$class = ($class == 'impair') ? 'pair' : 'impair';
+//var_dump($date_field,$subobject->{$date_field}, $classname);
 
-										if(!empty($subobject->date_creation)) $date_create = $subobject->date_creation;
+										if(!empty($date_field) && !empty($subobject->{$date_field})) $date_create = $subobject->{$date_field};
+										if(empty($date_create) && !empty($subobject->date_creation)) $date_create = $subobject->date_creation;
 										if(empty($date_create) && !empty($subobject->date_create)) $date_create = $subobject->date_create;
 										if(empty($date_create) && !empty($subobject->date_c)) $date_create = $subobject->date_c;
+										if(empty($date_create) && !empty($subobject->datec)) $date_create = $subobject->datec;
 
 										if(method_exists($subobject, 'getLibStatut')) $statut = $subobject->getLibStatut(3);
 									}
