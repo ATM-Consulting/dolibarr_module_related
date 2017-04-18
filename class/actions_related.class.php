@@ -331,8 +331,7 @@ class ActionsRelated
 		 					}
 		 					else
 		 					{
-			 					$('div.tabsAction').after(blockrelated.clone());
-			 					blockrelated.remove();
+			 					blockrelated.appendTo($('div.tabsAction'));
 		 					}
 		 				}
 
