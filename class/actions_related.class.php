@@ -135,7 +135,7 @@ class ActionsRelated
 		 			<input type="hidden" name="id" value="<?php echo GETPOST('id'); ?>"  />
 		 			<input type="hidden" name="facid" value="<?php echo GETPOST('facid'); ?>"  />
 		 			<br>
-					<div class="titre"><?php echo $langs->trans('ElementToLink'); ?></div>
+					<div align="left" class="titre"><?php echo $langs->trans('ElementToLink'); ?></div>
 
 			 		<input type="hidden" id="id_related_object" name="id_related_object" value=""  />
 			 		<input type="hidden" id="type_related_object" name="type_related_object" value=""  />
