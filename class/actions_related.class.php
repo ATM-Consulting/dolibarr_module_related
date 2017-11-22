@@ -317,7 +317,7 @@ class ActionsRelated
 					      }
 					    });
 
-		 				$( "#add_related_object" ).autocomplete( "instance" )._renderItem = function( ul, item ) {
+		 				$( "#add_related_object" ).autocomplete().data("uiAutocomplete")._renderItem = function( ul, item ) {
 
 					      	  $li = $( "<li />" )
 								    .attr( "data-value", item.value )
