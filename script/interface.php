@@ -82,7 +82,6 @@ function _search_type($type, $keyword) {
 		$objname = 'Facture';
 		$ref_field = 'facnumber';
 		$getEntity= 'facture';
-		$ref_field2='entity';
 		$join_to_soc = true;
 	}
 	elseif($type == 'contact') {
@@ -200,7 +199,7 @@ function _search_type($type, $keyword) {
 			$r = $obj->ref;
 			if(!empty($obj->client))$r.=', '.$obj->client;
 
-			$Tab[$obj->rowid] = $r.' / '.getEntity($getEntity);
+			$Tab[$obj->rowid] = $r;
 
 		}
 		return $Tab;
