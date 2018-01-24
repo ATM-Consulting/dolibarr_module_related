@@ -45,6 +45,7 @@ function _search_type($type, $keyword) {
 	$ref_field = 'ref';
 	$ref_field2 = '';
 	$join_to_soc = false;
+	$getEntity ='';
 
 	if($type == 'company') {
 		$table = MAIN_DB_PREFIX.'societe';
@@ -80,6 +81,8 @@ function _search_type($type, $keyword) {
 		$table = MAIN_DB_PREFIX.'facture';
 		$objname = 'Facture';
 		$ref_field = 'facnumber';
+		$getEntity= 'facture';
+		$ref_field2='entity';
 		$join_to_soc = true;
 	}
 	elseif($type == 'contact') {
@@ -152,11 +155,17 @@ function _search_type($type, $keyword) {
 			$sql.=" LEFT JOIN ".MAIN_DB_PREFIX."societe s ON (s.rowid = t.fk_soc) ";
 		}
 	}
-
+	$sql.=" WHERE ";
+	
+	if(!empty($getEntity))
+	{
+		$sql.= ' t.entity IN (' . getEntity($getEntity) . ') AND ( ';
+	}
+	
 	if ($db->type == 'pgsql' && ($ref_field=='id' || $ref_field=='rowid')) {
-		$sql.=" WHERE CAST(t.".$ref_field." AS TEXT) LIKE '".$keyword."%' ";
+		$sql.=" CAST(t.".$ref_field." AS TEXT) LIKE '".$keyword."%' ";
 	} else {
-		$sql.=" WHERE t.".$ref_field." LIKE '".$keyword."%' ";
+		$sql.=" t.".$ref_field." LIKE '".$keyword."%' ";
 	}
 
 	if (!empty($ref_field2) && $db->type == 'pgsql' && ($ref_field2=='id' || $ref_field2=='rowid')) {
@@ -165,7 +174,11 @@ function _search_type($type, $keyword) {
 		$sql.=" OR t.".$ref_field2." LIKE '".$keyword."%' ";
 	}
 
-
+	if(!empty($getEntity))
+	{
+		$sql.= ') ';
+	}
+	
 	$sql.=" LIMIT 20 ";
 	//var_dump($sql);
     //$sql="SELECT ff.ref FROM  ".MAIN_DB_PREFIX."facture_fourn ff WHERE ";
@@ -187,7 +200,7 @@ function _search_type($type, $keyword) {
 			$r = $obj->ref;
 			if(!empty($obj->client))$r.=', '.$obj->client;
 
-			$Tab[$obj->rowid] = $r;
+			$Tab[$obj->rowid] = $r.' / '.getEntity($getEntity);
 
 		}
 		return $Tab;
