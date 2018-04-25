@@ -141,6 +141,7 @@ class ActionsRelated
 		 		<form name="formLinkObj" action="<?php echo $_SERVER['PHP_SELF']; ?>" method="post">
 		 			<input type="hidden" name="action" value="add_related_link"  />
 		 			<input type="hidden" name="id" value="<?php echo GETPOST('id'); ?>"  />
+		 			<input type="hidden" name="socid" value="<?php echo GETPOST('socid'); ?>"  />
 		 			<input type="hidden" name="facid" value="<?php echo GETPOST('facid'); ?>"  />
 		 			<br>
 					<div align="left" class="titre"><?php echo $langs->trans('ElementToLink'); ?></div>
@@ -161,7 +162,7 @@ class ActionsRelated
 
 							foreach($object->linkedObjectsIds as $objecttype => &$TSubIdObject) {
 								//var_dump($objecttype);
-								if(isset( $object->linkedObjects[$objecttype] ) && $objecttype!='societe' && $objecttype!='product' && $object->element!='project') continue; // on affiche ici que les objects non géré en natif
+								if(isset( $object->linkedObjects[$objecttype] ) && $objecttype!='societe' && $objecttype!='product' && $object->element!='project' && !($object->element=='societe' && ($objecttype=='facture' || $objecttype=='propal' || $objecttype=='commande'))) continue; // on affiche ici que les objects non géré en natif
 
 								foreach($TSubIdObject as $id_object) {
 									$date_create = 0;
@@ -233,13 +234,14 @@ class ActionsRelated
 									}
 
 									$Tids = TRequeteCore::get_id_from_what_you_want($PDOdb, MAIN_DB_PREFIX."element_element",array('fk_source'=>$id_object,'fk_target'=>$object->id,'sourcetype'=>$objecttype,'targettype'=>$object->element));
-
+									if(empty($Tids)) $Tids = TRequeteCore::get_id_from_what_you_want($PDOdb, MAIN_DB_PREFIX."element_element",array('fk_source'=>$object->id,'fk_target'=>$id_object,'sourcetype'=>$object->element,'targettype'=>$objecttype));
+									
 									?>
 									<tr class="<?php echo $class ?>">
 										<td><?php echo $link; ?></td>
 										<td align="center"><?php echo !empty($date_create) ? dol_print_date($date_create,'day') : ''; ?></td>
 										<td align="center"><?php echo $statut; ?></td>
-										<td align="center"><a href="?id=<?php echo $object->id; ?>&action=delete_related_link&id_link=<?php echo $Tids[0]; ?>"><?php print img_picto($langs->trans("Delete"), 'delete.png') ?></a></td>
+										<td align="center"><a href="?<?php echo ($object->element === 'societe' ? 'socid=' : 'id=').$object->id; ?>&action=delete_related_link&id_link=<?php echo $Tids[0]; ?>"><?php print img_picto($langs->trans("Delete"), 'delete.png') ?></a></td>
 									</tr>
 									<?php
 
