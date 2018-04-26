@@ -162,7 +162,7 @@ class ActionsRelated
 
 							foreach($object->linkedObjectsIds as $objecttype => &$TSubIdObject) {
 								//var_dump($objecttype);
-								if(isset( $object->linkedObjects[$objecttype] ) && $objecttype!='societe' && $objecttype!='product' && $object->element!='project' && !($object->element=='societe' && ($objecttype=='facture' || $objecttype=='propal' || $objecttype=='commande'))) continue; // on affiche ici que les objects non géré en natif
+								if(isset( $object->linkedObjects[$objecttype] ) && $objecttype!='societe' && $objecttype!='contratabonnement' && $objecttype!='product' && $object->element!='project' && !($object->element=='societe' && ($objecttype=='facture' || $objecttype=='propal' || $objecttype=='commande'))) continue; // on affiche ici que les objects non géré en natif
 
 								foreach($TSubIdObject as $id_object) {
 									$date_create = 0;
@@ -183,6 +183,10 @@ class ActionsRelated
 										dol_include_once('/of/class/ordre_fabrication_asset.class.php');
 										$classname='TAssetOf';
 										$abricot = true;
+									}
+									else if($objecttype=='contratabonnement') {
+										require_once DOL_DOCUMENT_ROOT . '/contrat/class/contrat.class.php';
+										$classname = 'Contrat';
 									}
 
 									if(!class_exists($classname)) {
