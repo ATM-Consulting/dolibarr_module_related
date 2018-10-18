@@ -26,6 +26,7 @@
 /**
  * Class ActionsRelated
  */
+
 class ActionsRelated
 {
 	/**
@@ -81,11 +82,18 @@ class ActionsRelated
 				else if($type == 'company') $type = 'societe';
                 else if($type=='facture_fournisseur') $type= 'invoice_supplier';
                 else if($type=='commande_fournisseur') $type='order_supplier';
-				$res = $object->add_object_linked( $type , GETPOST('id_related_object') );
 
-                $object->fetchObjectLinked();
-
-                if(empty($res))setEventMessage($langs->trans('RelationCantBeAdded' ),'errors');
+                $object->db->begin(); //escape bad recurssive inclusion 
+                //TODO find a way to report this to user
+                
+                $res = $object->add_object_linked( $type , GETPOST('id_related_object') );
+				$object->fetchObjectLinked();
+               
+             	$object->db->commit();
+               	
+                if(empty($res)) {
+                	setEventMessage($langs->trans('RelationCantBeAdded' ),'errors');
+                }
                 else{
                     $related_link_added=true;
                     global $langs,$conf;
@@ -309,7 +317,7 @@ class ActionsRelated
 					      }
 					    });
 
-		 				$( "#add_related_object" ).autocomplete( "instance" )._renderItem = function( ul, item ) {
+		 				$( "#add_related_object" ).autocomplete().data("uiAutocomplete")._renderItem = function( ul, item ) {
 
 					      	  $li = $( "<li />" )
 								    .attr( "data-value", item.value )

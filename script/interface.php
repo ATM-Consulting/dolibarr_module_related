@@ -21,7 +21,7 @@ function _search($keyword) {
 
 	$Tab = array();
 
-	$TType=array('invoice','commande','propal','projet','task','company','contact','event', 'product', 'facture_fournisseur', 'commande_fournisseur','fichinter');
+	$TType=array('invoice','commande','shipping','propal','projet','task','company','contact','event', 'product', 'facture_fournisseur', 'commande_fournisseur','fichinter');
 
 	if(!empty($conf->of->enabled)) {
 		$TType[] = 'ordre_fabrication';
@@ -76,6 +76,11 @@ function _search_type($type, $keyword) {
 		$objname = 'Commande';
 		$join_to_soc = true;
 	}
+	elseif($type == 'shipping') {
+                $table = MAIN_DB_PREFIX.'expedition';
+                $objname = 'Expedition';
+                $join_to_soc = true;
+        }
 	elseif($type == 'invoice') {
 		$table = MAIN_DB_PREFIX.'facture';
 		$objname = 'Facture';
