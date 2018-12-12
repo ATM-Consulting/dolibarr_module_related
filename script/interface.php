@@ -45,15 +45,18 @@ function _search_type($type, $keyword) {
 	$ref_field = 'ref';
 	$ref_field2 = '';
 	$join_to_soc = false;
+	$element ='';
 
 	if($type == 'company') {
 		$table = MAIN_DB_PREFIX.'societe';
 		$objname = 'Societe';
+		$element= 'societe';
 		$ref_field='nom';
 	}
 	elseif($type == 'projet') {
 		$table = MAIN_DB_PREFIX.'projet';
 		$objname = 'Project';
+		$element = 'project';
 		$join_to_soc = true;
 	}
 	elseif($type == 'task' || $type == 'project_task') {
@@ -69,11 +72,13 @@ function _search_type($type, $keyword) {
 		$id_field = 'id';
 		$ref_field = 'id';
 		$ref_field2 = 'label';
+		$element = 'actioncomm';
 		$join_to_soc = true;
 	}
 	elseif($type == 'order' || $type == 'commande') {
 		$table = MAIN_DB_PREFIX.'commande';
 		$objname = 'Commande';
+		$element = 'commande';
 		$join_to_soc = true;
 	}
 	elseif($type == 'shipping') {
@@ -85,21 +90,25 @@ function _search_type($type, $keyword) {
 		$table = MAIN_DB_PREFIX.'facture';
 		$objname = 'Facture';
 		$ref_field = 'facnumber';
+		$element = 'facture';
 		$join_to_soc = true;
 	}
 	elseif($type == 'contact') {
         $table = MAIN_DB_PREFIX.'socpeople';
         $ref_field = 'lastname';
+        $element = 'socpeople';
 		$join_to_soc = true;
     }
     elseif($type == 'propal') {
         $table = MAIN_DB_PREFIX.'propal';
         $ref_field = 'ref';
+        $element = 'propal';
         $join_to_soc = true;
     }
     elseif($type == 'product') {
         $table = MAIN_DB_PREFIX.'product';
         $ref_field = 'ref';
+        $element = 'product';
 
     }
     elseif ($type=='facture_fournisseur') {
@@ -107,12 +116,14 @@ function _search_type($type, $keyword) {
         //$id_field='rowid';
         $objname='FactureFourn';
         $ref_field='ref';
+        $element = 'facture_fourn';
 		$join_to_soc = true;
     }
     elseif ($type=='commande_fournisseur'){
         $table=MAIN_DB_PREFIX.'commande_fournisseur';
         $objname='CommandeFournisseur';
         $ref_field='ref';
+        $element = 'commande_fournisseur';
 		$join_to_soc = true;
     }
     elseif ($type=='fichinter'){
@@ -157,11 +168,17 @@ function _search_type($type, $keyword) {
 			$sql.=" LEFT JOIN ".MAIN_DB_PREFIX."societe s ON (s.rowid = t.fk_soc) ";
 		}
 	}
-
+	$sql.=" WHERE 1 ";
+	
+	if(!empty($element))
+	{
+		$sql.= '  AND t.entity IN (' . getEntity($element) . ')  ';
+	}
+	
 	if ($db->type == 'pgsql' && ($ref_field=='id' || $ref_field=='rowid')) {
-		$sql.=" WHERE CAST(t.".$ref_field." AS TEXT) LIKE '".$keyword."%' ";
+		$sql.=" AND CAST(t.".$ref_field." AS TEXT) LIKE '".$keyword."%' ";
 	} else {
-		$sql.=" WHERE t.".$ref_field." LIKE '".$keyword."%' ";
+		$sql.=" AND t.".$ref_field." LIKE '".$keyword."%' ";
 	}
 
 	if (!empty($ref_field2) && $db->type == 'pgsql' && ($ref_field2=='id' || $ref_field2=='rowid')) {
@@ -170,7 +187,8 @@ function _search_type($type, $keyword) {
 		$sql.=" OR t.".$ref_field2." LIKE '".$keyword."%' ";
 	}
 
-
+	
+	
 	$sql.=" LIMIT 20 ";
 	//var_dump($sql);
     //$sql="SELECT ff.ref FROM  ".MAIN_DB_PREFIX."facture_fourn ff WHERE ";
