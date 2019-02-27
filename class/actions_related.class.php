@@ -183,6 +183,10 @@ class ActionsRelated
 										dol_include_once('/of/class/ordre_fabrication_asset.class.php');
 										$classname='TAssetOf';
 										$abricot = true;
+									}else if ($objecttype=='assetatm') {
+										dol_include_once('/assetatm/class/asset.class.php');
+										$classname='TAsset';
+										$abricot = true;
 									}
 									else if($objecttype=='contratabonnement') {
 										require_once DOL_DOCUMENT_ROOT . '/contrat/class/contrat.class.php';
