@@ -27,6 +27,14 @@ function _search($keyword) {
 		$TType[] = 'ordre_fabrication';
 	}
 
+    if(!empty($conf->asset->enabled)) {
+        $TType[] = 'asset';
+    }
+
+    if(!empty($conf->assetatm->enabled)) {
+        $TType[] = 'assetatm';
+    }
+
 	//$TType=array('facture_fournisseur', 'commande_fournisseur');
 	foreach($TType as $type) {
 		$Tab[$type] = _search_type($type, $keyword);
@@ -137,6 +145,18 @@ function _search_type($type, $keyword) {
         $objname='TAssetOf';
         $ref_field='numero';
 
+	}
+	else if(!empty($conf->asset->enabled) && $type == 'asset') {
+		$table=MAIN_DB_PREFIX.'asset';
+        $objname='TAsset';
+        $ref_field='serial_number';
+        $id_field='rowid';
+	}
+	else if(!empty($conf->assetatm->enabled) && $type == 'assetatm') {
+		$table=MAIN_DB_PREFIX.'assetatm';
+        $objname='TAsset';
+        $ref_field='serial_number';
+        $id_field='rowid';
 	}
 
 
