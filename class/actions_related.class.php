@@ -377,7 +377,7 @@ class ActionsRelated
 	}
 
 	function addMoreActionsButtons($parameters, &$object, &$action, $hookmanager) {
-		if( $parameters['currentcontext']='actioncard' || $parameters['currentcontext']='contactcard' || $parameters['currentcontext']=='globalcard') {
+		if( $parameters['currentcontext']=='actioncard' || $parameters['currentcontext']=='contactcard' || $parameters['currentcontext']=='globalcard') {
 
 			if (!empty($object))return $this->blockRelated($parameters, $object, $action, $hookmanager, "width:50%;clear:both;margin-bottom:20px;");
 		}
