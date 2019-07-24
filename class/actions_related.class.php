@@ -273,6 +273,10 @@ class ActionsRelated
 
 		 			$(document).ready(function() {
 
+                        $('.blockrelated_content').each(function() {
+                            $(this).closest('div.tabsAction').after($(this));
+                        });
+
 		 				$('#add_related_object').autocomplete({
 					      source: function( request, response ) {
 					        $.ajax({
