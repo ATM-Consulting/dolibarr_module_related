@@ -97,7 +97,7 @@ function _search_type($type, $keyword) {
 	elseif($type == 'invoice') {
 		$table = MAIN_DB_PREFIX.'facture';
 		$objname = 'Facture';
-		$ref_field = (float) DOL_VERSION < 10.0 ? 'facnumber' : 'ref';
+		$ref_field = ((float) DOL_VERSION < 10.0 ? 'facnumber' : 'ref');
 		$element = 'facture';
 		$join_to_soc = true;
 	}
