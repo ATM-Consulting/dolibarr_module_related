@@ -97,7 +97,7 @@ function _search_type($type, $keyword) {
 	elseif($type == 'invoice') {
 		$table = MAIN_DB_PREFIX.'facture';
 		$objname = 'Facture';
-		$ref_field = 'facnumber';
+		$ref_field = (float) DOL_VERSION < 10.0 ? 'facnumber' : 'ref';
 		$element = 'facture';
 		$join_to_soc = true;
 	}
@@ -189,12 +189,12 @@ function _search_type($type, $keyword) {
 		}
 	}
 	$sql.=" WHERE 1 ";
-	
+
 	if(!empty($element))
 	{
 		$sql.= '  AND t.entity IN (' . getEntity($element) . ')  ';
 	}
-	
+
 	if ($db->type == 'pgsql' && ($ref_field=='id' || $ref_field=='rowid')) {
 		$sql.=" AND CAST(t.".$ref_field." AS TEXT) LIKE '".$keyword."%' ";
 	} else {
@@ -207,8 +207,8 @@ function _search_type($type, $keyword) {
 		$sql.=" OR t.".$ref_field2." LIKE '".$keyword."%' ";
 	}
 
-	
-	
+
+
 	$sql.=" LIMIT 20 ";
 	//var_dump($sql);
     //$sql="SELECT ff.ref FROM  ".MAIN_DB_PREFIX."facture_fourn ff WHERE ";
