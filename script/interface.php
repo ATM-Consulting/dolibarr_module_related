@@ -21,7 +21,7 @@ function _search($keyword) {
 
 	$Tab = array();
 
-	$TType=array('invoice','commande','shipping','propal','projet','task','company','contact','event', 'product', 'facture_fournisseur', 'commande_fournisseur','fichinter');
+	$TType=array('invoice','commande','shipping','propal','projet','task','company','contact','event', 'product', 'facture_fournisseur', 'commande_fournisseur','fichinter','contrat');
 
 	if(!empty($conf->of->enabled)) {
 		$TType[] = 'ordre_fabrication';
@@ -90,14 +90,14 @@ function _search_type($type, $keyword) {
 		$join_to_soc = true;
 	}
 	elseif($type == 'shipping') {
-                $table = MAIN_DB_PREFIX.'expedition';
-                $objname = 'Expedition';
-                $join_to_soc = true;
-        }
+        $table = MAIN_DB_PREFIX.'expedition';
+        $objname = 'Expedition';
+        $join_to_soc = true;
+	}
 	elseif($type == 'invoice') {
 		$table = MAIN_DB_PREFIX.'facture';
 		$objname = 'Facture';
-		$ref_field = 'facnumber';
+		$ref_field = ((float) DOL_VERSION < 10.0 ? 'facnumber' : 'ref');
 		$element = 'facture';
 		$join_to_soc = true;
 	}
@@ -134,6 +134,12 @@ function _search_type($type, $keyword) {
         $element = 'commande_fournisseur';
 		$join_to_soc = true;
     }
+	elseif($type == 'contrat') {
+		$table = MAIN_DB_PREFIX.'contrat';
+		$ref_field = 'ref';
+		$element = 'contrat';
+		$join_to_soc = true;
+	}
     elseif ($type=='fichinter'){
     	$table=MAIN_DB_PREFIX.'fichinter';
     	$objname='Fichinter';
@@ -189,12 +195,12 @@ function _search_type($type, $keyword) {
 		}
 	}
 	$sql.=" WHERE 1 ";
-	
+
 	if(!empty($element))
 	{
 		$sql.= '  AND t.entity IN (' . getEntity($element) . ')  ';
 	}
-	
+
 	if ($db->type == 'pgsql' && ($ref_field=='id' || $ref_field=='rowid')) {
 		$sql.=" AND CAST(t.".$ref_field." AS TEXT) LIKE '".$keyword."%' ";
 	} else {
@@ -207,8 +213,8 @@ function _search_type($type, $keyword) {
 		$sql.=" OR t.".$ref_field2." LIKE '".$keyword."%' ";
 	}
 
-	
-	
+
+
 	$sql.=" LIMIT 20 ";
 	//var_dump($sql);
     //$sql="SELECT ff.ref FROM  ".MAIN_DB_PREFIX."facture_fourn ff WHERE ";
