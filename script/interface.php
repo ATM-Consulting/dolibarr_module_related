@@ -21,7 +21,7 @@ function _search($keyword) {
 
 	$Tab = array();
 
-	$TType=array('invoice','commande','shipping','propal','projet','task','company','contact','event', 'product', 'facture_fournisseur', 'commande_fournisseur','fichinter');
+	$TType=array('invoice','commande','shipping','propal','projet','task','company','contact','event', 'product', 'facture_fournisseur', 'commande_fournisseur','fichinter','contrat');
 
 	if(!empty($conf->of->enabled)) {
 		$TType[] = 'ordre_fabrication';
@@ -90,10 +90,10 @@ function _search_type($type, $keyword) {
 		$join_to_soc = true;
 	}
 	elseif($type == 'shipping') {
-                $table = MAIN_DB_PREFIX.'expedition';
-                $objname = 'Expedition';
-                $join_to_soc = true;
-        }
+        $table = MAIN_DB_PREFIX.'expedition';
+        $objname = 'Expedition';
+        $join_to_soc = true;
+	}
 	elseif($type == 'invoice') {
 		$table = MAIN_DB_PREFIX.'facture';
 		$objname = 'Facture';
@@ -134,6 +134,12 @@ function _search_type($type, $keyword) {
         $element = 'commande_fournisseur';
 		$join_to_soc = true;
     }
+	elseif($type == 'contrat') {
+		$table = MAIN_DB_PREFIX.'contrat';
+		$ref_field = 'ref';
+		$element = 'contrat';
+		$join_to_soc = true;
+	}
     elseif ($type=='fichinter'){
     	$table=MAIN_DB_PREFIX.'fichinter';
     	$objname='Fichinter';
