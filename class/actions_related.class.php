@@ -173,6 +173,9 @@ class ActionsRelated
 								// si on est sur une fiche événement
 								elseif (in_array($object->element, array('action')))
 									$showThisLink = true;
+								// si l'objet lié n'est pas chargé
+								elseif (!isset( $object->linkedObjects[$objecttype] ))
+									$showThisLink = true;
 
 								// $showThisLink doit être false si l'objet est géré en natif
 								if (!$showThisLink) continue;
