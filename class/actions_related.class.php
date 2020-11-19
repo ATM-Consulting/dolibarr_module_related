@@ -132,8 +132,20 @@ class ActionsRelated
 				}
 			}
 			else {
-			    //var_dump($object);
+				// Ce bazar vient de fetchObjectLinked qui s'autocensure pour les types d'objet dont le nom ne
+				// correspond pas à un module activé (sauf certains qui ont un traitement spécial).
+				$TFakeModule = array();
+				foreach (array ('event' => 'agenda', ) as $objectname => $realmodulename) {
+					if (empty($conf->{$objectname}->enabled)         // le "faux" module n'est pas activé
+						&& !empty($conf->{$realmodulename}->enabled) // le vrai module correspondant doit être activé
+					) {
+						$TFakeModule[] = $objectname;
+						$conf->{$objectname} = new stdClass();
+						$conf->{$objectname}->enabled = true;
+					}
+				}
 				if (empty($object->linkedObjects)) $object->fetchObjectLinked();
+				foreach ($TFakeModule as $objectname) unset($conf->{$objectname});
 			}
 		//var_dump($object->linkedObjectsIds);
 		 	?>
@@ -164,7 +176,7 @@ class ActionsRelated
 								$showThisLink = false;
 								// conditions pour afficher le lien:
 								// si l'objet lié est un tiers, un contrat/abonnement, un produit ou un projet
-								if (in_array($objecttype, array('societe', 'contratabonnement', 'product', 'project')))
+								if (in_array($objecttype, array('societe', 'contratabonnement', 'product', 'project', 'action')))
 									$showThisLink = true;
 								// si on est sur une fiche tiers et que l'objet lié est une facture, propale ou commande
 								elseif ($object->element == 'societe'
