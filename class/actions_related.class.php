@@ -83,14 +83,14 @@ class ActionsRelated
                 else if($type=='facture_fournisseur') $type= 'invoice_supplier';
                 else if($type=='commande_fournisseur') $type='order_supplier';
 
-                $object->db->begin(); //escape bad recurssive inclusion 
+                $object->db->begin(); //escape bad recurssive inclusion
                 //TODO find a way to report this to user
-                
+
                 $res = $object->add_object_linked( $type , GETPOST('id_related_object') );
 				$object->fetchObjectLinked();
-               
+
              	$object->db->commit();
-               	
+
                 if(empty($res)) {
                 	setEventMessage($langs->trans('RelationCantBeAdded' ),'errors');
                 }
@@ -132,8 +132,20 @@ class ActionsRelated
 				}
 			}
 			else {
-			    //var_dump($object);
+				// Ce bazar vient de fetchObjectLinked qui s'autocensure pour les types d'objet dont le nom ne
+				// correspond pas à un module activé (sauf certains qui ont un traitement spécial).
+				$TFakeModule = array();
+				foreach (array ('event' => 'agenda', ) as $objectname => $realmodulename) {
+					if (empty($conf->{$objectname}->enabled)         // le "faux" module n'est pas activé
+						&& !empty($conf->{$realmodulename}->enabled) // le vrai module correspondant doit être activé
+					) {
+						$TFakeModule[] = $objectname;
+						$conf->{$objectname} = new stdClass();
+						$conf->{$objectname}->enabled = true;
+					}
+				}
 				if (empty($object->linkedObjects)) $object->fetchObjectLinked();
+				foreach ($TFakeModule as $objectname) unset($conf->{$objectname});
 			}
 		//var_dump($object->linkedObjectsIds);
 		 	?>
@@ -161,8 +173,24 @@ class ActionsRelated
 							$class = 'pair';
 
 							foreach($object->linkedObjectsIds as $objecttype => &$TSubIdObject) {
-								//var_dump($objecttype);
-								if(isset( $object->linkedObjects[$objecttype] ) && $objecttype!='societe' && $objecttype!='contratabonnement' && $objecttype!='product' && $object->element!='project' && !($object->element=='societe' && ($objecttype=='facture' || $objecttype=='propal' || $objecttype=='commande'))) continue; // on affiche ici que les objects non géré en natif
+								$showThisLink = false;
+								// conditions pour afficher le lien:
+								// si l'objet lié est un tiers, un contrat/abonnement, un produit ou un projet
+								if (in_array($objecttype, array('societe', 'contratabonnement', 'product', 'project', 'action')))
+									$showThisLink = true;
+								// si on est sur une fiche tiers et que l'objet lié est une facture, propale ou commande
+								elseif ($object->element == 'societe'
+										&& in_array($objecttype, array('facture', 'propal', 'commande')))
+									$showThisLink = true;
+								// si on est sur une fiche événement
+								elseif (in_array($object->element, array('action')))
+									$showThisLink = true;
+								// si l'objet lié n'est pas chargé
+								elseif (!isset( $object->linkedObjects[$objecttype] ))
+									$showThisLink = true;
+
+								// $showThisLink doit être false si l'objet est géré en natif
+								if (!$showThisLink) continue;
 
 								foreach($TSubIdObject as $id_object) {
 									$date_create = 0;
@@ -247,7 +275,7 @@ class ActionsRelated
 
 									$Tids = TRequeteCore::get_id_from_what_you_want($PDOdb, MAIN_DB_PREFIX."element_element",array('fk_source'=>$id_object,'fk_target'=>$object->id,'sourcetype'=>$objecttype,'targettype'=>$object->element));
 									if(empty($Tids)) $Tids = TRequeteCore::get_id_from_what_you_want($PDOdb, MAIN_DB_PREFIX."element_element",array('fk_source'=>$object->id,'fk_target'=>$id_object,'sourcetype'=>$object->element,'targettype'=>$objecttype));
-									
+
 									?>
 									<tr class="<?php echo $class ?>">
 										<td><?php echo $link; ?></td>
