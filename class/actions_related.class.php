@@ -144,7 +144,7 @@ class ActionsRelated
 						$conf->{$objectname}->enabled = true;
 					}
 				}
-				if (empty($object->linkedObjects)) $object->fetchObjectLinked();
+				$object->fetchObjectLinked();
 				foreach ($TFakeModule as $objectname) unset($conf->{$objectname});
 			}
 		//var_dump($object->linkedObjectsIds);
@@ -172,21 +172,21 @@ class ActionsRelated
 						<?php
 							$class = 'pair';
 
-							foreach($object->linkedObjectsIds as $objecttype => &$TSubIdObject) {
+							foreach($object->linkedObjectsIds as $linkedObjectType => &$TSubIdObject) {
 								$showThisLink = false;
 								// conditions pour afficher le lien:
 								// si l'objet lié est un tiers, un contrat/abonnement, un produit ou un projet
-								if (in_array($objecttype, array('societe', 'contratabonnement', 'product', 'project', 'action')))
+								if (in_array($linkedObjectType, array('societe', 'contratabonnement', 'product', 'project', 'action')))
 									$showThisLink = true;
 								// si on est sur une fiche tiers et que l'objet lié est une facture, propale ou commande
 								elseif ($object->element == 'societe'
-										&& in_array($objecttype, array('facture', 'propal', 'commande')))
+										&& in_array($linkedObjectType, array('facture', 'propal', 'commande')))
 									$showThisLink = true;
 								// si on est sur une fiche événement
 								elseif (in_array($object->element, array('action')))
 									$showThisLink = true;
 								// si l'objet lié n'est pas chargé
-								elseif (!isset( $object->linkedObjects[$objecttype] ))
+								elseif (!isset( $object->linkedObjects[$linkedObjectType] ))
 									$showThisLink = true;
 
 								// $showThisLink doit être false si l'objet est géré en natif
@@ -194,33 +194,33 @@ class ActionsRelated
 
 								foreach($TSubIdObject as $id_object) {
 									$date_create = 0;
-									$classname = ucfirst($objecttype);
+									$classname = ucfirst($linkedObjectType);
 									$statut = 'N/A';
 
-									if($objecttype=='task') {
+									if($linkedObjectType=='task') {
 										dol_include_once('/projet/class/task.class.php');
 									}
-									else if($objecttype=='event' || $objecttype=='action') {
+									else if($linkedObjectType=='event' || $linkedObjectType=='action') {
 										dol_include_once('/comm/action/class/actioncomm.class.php');
 										$date_field = 'datep';
 										$classname='ActionComm';
-									}else if ($objecttype=='project') {
+									}else if ($linkedObjectType=='project') {
 										dol_include_once('/projet/class/project.class.php');
 									}
-									else if ($objecttype=='ordre_fabrication') {
+									else if ($linkedObjectType=='ordre_fabrication') {
 										dol_include_once('/of/class/ordre_fabrication_asset.class.php');
 										$classname='TAssetOf';
 										$abricot = true;
-									}else if ($objecttype=='asset') {
+									}else if ($linkedObjectType=='asset') {
 										dol_include_once('/asset/class/asset.class.php');
 										$classname='TAsset';
 										$abricot = true;
-									}else if ($objecttype=='assetatm') {
+									}else if ($linkedObjectType=='assetatm') {
 										dol_include_once('/assetatm/class/asset.class.php');
 										$classname='TAsset';
 										$abricot = true;
 									}
-									else if($objecttype=='contratabonnement') {
+									else if($linkedObjectType=='contratabonnement') {
 										require_once DOL_DOCUMENT_ROOT . '/contrat/class/contrat.class.php';
 										$classname = 'Contrat';
 									}
@@ -273,8 +273,8 @@ class ActionsRelated
 										if(method_exists($subobject, 'getLibStatut')) $statut = $subobject->getLibStatut(3);
 									}
 
-									$Tids = TRequeteCore::get_id_from_what_you_want($PDOdb, MAIN_DB_PREFIX."element_element",array('fk_source'=>$id_object,'fk_target'=>$object->id,'sourcetype'=>$objecttype,'targettype'=>$object->element));
-									if(empty($Tids)) $Tids = TRequeteCore::get_id_from_what_you_want($PDOdb, MAIN_DB_PREFIX."element_element",array('fk_source'=>$object->id,'fk_target'=>$id_object,'sourcetype'=>$object->element,'targettype'=>$objecttype));
+									$Tids = TRequeteCore::get_id_from_what_you_want($PDOdb, MAIN_DB_PREFIX."element_element",array('fk_source'=>$id_object,'fk_target'=>$object->id,'sourcetype'=>$linkedObjectType,'targettype'=>$object->element));
+									if(empty($Tids)) $Tids = TRequeteCore::get_id_from_what_you_want($PDOdb, MAIN_DB_PREFIX."element_element",array('fk_source'=>$object->id,'fk_target'=>$id_object,'sourcetype'=>$object->element,'targettype'=>$linkedObjectType));
 
 									?>
 									<tr class="<?php echo $class ?>">
