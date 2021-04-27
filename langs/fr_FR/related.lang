@@ -9,3 +9,4 @@ RelatedAbout = A propos du module Related
 AddRelated=Ajouter ce lien
 ElementToLink=Elements particuliers liés
 RelationAdded=Relation ajoutée
+CantInstanciateClass = Classe introuvable: %s
