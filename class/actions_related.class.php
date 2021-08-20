@@ -50,6 +50,7 @@ class ActionsRelated
 	const TYPEMAP = array(
 		'invoice' => 'facture',
 		'company' => 'societe',
+		'projet' => 'project',
 		'facture_fournisseur' => 'invoice_supplier',
 		'commande_fournisseur' => 'order_supplier',
 	);
@@ -73,6 +74,7 @@ class ActionsRelated
 		'action' => 'ActionComm',
 		'ordre_fabrication' => 'TAssetOf',
 		'asset' => 'TAsset',
+		'assetatm' => 'TAsset',
 		'contratabonnement' => 'Contrat',
 		'projet' => 'Project',
 	);
@@ -104,6 +106,8 @@ class ActionsRelated
 	 */
 	const MODULENAMEMAP = array(
 		'event' => 'agenda',
+		'project' => 'projet',
+		'task' => 'projet',
 	);
 
 	public $relatedLinkAdded = false;
@@ -124,19 +128,17 @@ class ActionsRelated
 	 */
 	function doActions($parameters, &$object, &$action, $hookmanager) {
 		if ($action === 'add_related_link' || $action === 'delete_related_link') {
-			global $langs, $conf;
+			global $langs, $conf, $user;
 			$action_orig = $action; // copy $action onto non-reference variable before resetting it
 			$action = '';
-			$db = $object->db;
+			$db = &$object->db;
 			if (!defined('INC_FROM_DOLIBARR')) define('INC_FROM_DOLIBARR', true);
 			include_once dirname(__DIR__) . '/config.php';
 			$langs->load('related@related');
 
-
 			if ($action_orig === 'add_related_link') {
 				$type = GETPOST('type_related_object', 'alphanohtml');
 				if (isset($this::TYPEMAP[$type])) $type = $this::TYPEMAP[$type];
-				$db->begin();
 				$idRelatedObject = intval(GETPOST('id_related_object', 'int'));
 				$object->fetchObjectLinked(
 					null,
@@ -152,11 +154,11 @@ class ActionsRelated
 					// link already exists
 					$this->errors[] = $langs->trans('RelationAlreadyExists');
 				} else {
+					$db->begin();
 					$res = $object->add_object_linked( $type , $idRelatedObject);
 					if ($res <= 0) {
 						$db->rollback();
 						$this->errors[] = $langs->trans('RelationCantBeAdded');
-						return -1;
 					} else {
 						$this->relatedLinkAdded = true;
 						include_once DOL_DOCUMENT_ROOT . '/core/class/interfaces.class.php';
@@ -187,6 +189,10 @@ class ActionsRelated
 			}
 			// après l’action, on re-fetch les objets liés (potentiellement ajoutés ou supprimés)
 			$object->fetchObjectLinked();
+
+			if (count($this->errors)) {
+				return -1;
+			}
 		}
 	}
 
@@ -258,7 +264,7 @@ class ActionsRelated
 							//    @see Form::showLinkedObjectBlock()
 
 							$showThisLink = true;
-							// TODO *********************************** AVANT LE MERGE DE LA PR: remettre au clair!!!!!!
+							// TODO *********************************** remettre au clair pour éviter d’afficher des liens en double
 							// conditions pour afficher le lien:
 							// si l'objet lié est un tiers, un contrat/abonnement, un produit ou un projet
 							if (in_array($linkedObjectType, array('societe', 'contratabonnement', 'product', 'project', 'action')))

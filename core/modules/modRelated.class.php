@@ -101,6 +101,7 @@ class modRelated extends DolibarrModules
 				'interventioncard',
 				'ordercard',
 				'ticketcard',
+				'contractcard',
 			),
 			'triggers' => 0 // [FM] le fichier des triggers est vide, je passe à zéro
 		);

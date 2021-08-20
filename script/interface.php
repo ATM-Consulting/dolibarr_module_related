@@ -26,7 +26,7 @@ function _search($keyword) {
 		'commande',
 		'shipping',
 		'propal',
-		'projet',
+		'project',
 		'task',
 		'company',
 		'contact',
@@ -77,7 +77,7 @@ function _search_type($type, $keyword) {
 		$element= 'societe';
 		$ref_field='nom';
 	}
-	elseif($type == 'projet') {
+	elseif($type == 'project') {
 		$table = MAIN_DB_PREFIX.'projet';
 		$objname = 'Project';
 		$element = 'project';
