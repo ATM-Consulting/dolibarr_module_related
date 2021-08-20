@@ -58,7 +58,7 @@ class modRelated extends DolibarrModules
 		// Module description, used if translation string 'ModuleXXXDesc' not found (where XXX is value of numeric property 'numero' of module)
 		$this->description = "Description of module Related";
 		// Possible values for version are: 'development', 'experimental', 'dolibarr' or version
-		$this->version = '1.3.0';
+		$this->version = '1.4.0';
 		// Key used in llx_const table to save module status enabled/disabled (where MYMODULE is value of property name of module in uppercase)
 		$this->const_name = 'MAIN_MODULE_'.strtoupper($this->name);
 		// Where to store the module in setup page (0=common,1=interface,2=others,3=very specific)
@@ -88,8 +88,22 @@ class modRelated extends DolibarrModules
 		//							'workflow' => array('WORKFLOW_MODULE1_YOURACTIONTYPE_MODULE2'=>array('enabled'=>'! empty($conf->module1->enabled) && ! empty($conf->module2->enabled)', 'picto'=>'yourpicto@related')) // Set here all workflow context managed by module
 		//                        );
 		$this->module_parts = array(
-			'hooks'=>array('commonobject','actioncard','projectcard', 'contactcard', 'thirdpartycard', 'projecttaskcard','interventioncard')
-			,'triggers' => 1
+			// note: le fait de traiter l'action dans le doActions fait qu'il faut mettre
+			// toutes les cards des objets pris en charge; il serait peut-être plus simple
+			// d'utiliser le hook "globalcard".
+			'hooks'=>array(
+				'commonobject',
+				'actioncard',
+				'projectcard',
+				'contactcard',
+				'thirdpartycard',
+				'projecttaskcard',
+				'interventioncard',
+				'ordercard',
+				'ticketcard',
+				'contractcard',
+			),
+			'triggers' => 0 // [FM] le fichier des triggers est vide, je passe à zéro
 		);
 
 		// Data directories to create when module is enabled.

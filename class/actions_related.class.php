@@ -45,10 +45,157 @@ class ActionsRelated
 	public $errors = array();
 
 	/**
+	 * mapping type => object->element
+	 */
+	const TYPEMAP = array(
+		'invoice' => 'facture',
+		'company' => 'societe',
+		'projet' => 'project',
+		'facture_fournisseur' => 'invoice_supplier',
+		'commande_fournisseur' => 'order_supplier',
+	);
+
+	const CLASSPATHMAP = array(
+		'task' => '/projet/class/task.class.php',
+		'event' => '/comm/action/class/actioncomm.class.php',
+		'action' => '/comm/action/class/actioncomm.class.php',
+		'project' => '/projet/class/project.class.php',
+		'projet' => '/projet/class/project.class.php',
+		'ordre_fabrication' => '/ordre_fabrication_asset.class.php',
+		'asset' => '/asset/class/asset.class.php',
+		'assetatm' => '/assetatm/class/asset.class.php',
+		'contratabonnement' => '/contrat/class/contrat.class.php',
+		'ticket' => '/ticket/class/ticket.class.php',
+		'fichinter' => '/fichinter/class/fichinter.class.php',
+	);
+
+	// type => class name; pas besoin si ucfirst(type) == classname
+	const CLASSNAMEMAP = array(
+		'event' => 'ActionComm',
+		'action' => 'ActionComm',
+		'ordre_fabrication' => 'TAssetOf',
+		'asset' => 'TAsset',
+		'assetatm' => 'TAsset',
+		'contratabonnement' => 'Contrat',
+		'projet' => 'Project',
+		'fichinter' => 'Fichinter',
+	);
+
+	const DATEFIELDMAP = array(
+		'event' => 'datep',
+		'action' => 'datep',
+	);
+
+	const IS_ABRICOT = array(
+		'asset',
+		'assetatm',
+	);
+
+	/**
+	 * mapping vrai object->element => nom du module
+	 * En effet, fetchObjectLinked part  du principe que le nom du module correspond
+	 * toujours au champ 'element' de l’objet (idéalement ça devrait être le cas, mais en
+	 * pratique, pas toujours). En fait, fetchObjectLinked incorpore quelques exceptions pour
+	 * des modules très fréquemment utilisés (facture…) mais pas pour tous.
+	 *
+	 * Comme fetchObjectLinked ne conserve pas les objets liés provenant de modules désactivés,
+	 * pour éviter qu’il se débarrasse des objets liés à des modules mal nommés, il faut créer
+	 * un leurre (un objet module activé correspondant au nom attendu par fetchObjectLinked).
+	 *
+	 * Il faudrait faire une PR cœur pour que ce mapping soit fourni par le commonobject et
+	 * utilisé directement par fetchObjectLinked (plus idéal mais moins réaliste : renommer
+	 * les modules ou les éléments pour que tout corresponde).
+	 */
+	const MODULENAMEMAP = array(
+		'event' => 'agenda',
+		'project' => 'projet',
+		'task' => 'projet',
+	);
+
+	public $relatedLinkAdded = false;
+
+	/**
 	 * Constructor
 	 */
 	public function __construct()
 	{
+	}
+
+	/**
+	 * @param array $parameters
+	 * @param CommonObject $object
+	 * @param string $action
+	 * @param HookManager $hookmanager
+	 * @return int
+	 */
+	function doActions($parameters, &$object, &$action, $hookmanager) {
+		if ($action === 'add_related_link' || $action === 'delete_related_link') {
+			global $langs, $conf, $user;
+			$action_orig = $action; // copy $action onto non-reference variable before resetting it
+			$action = '';
+			$db = &$object->db;
+			if (!defined('INC_FROM_DOLIBARR')) define('INC_FROM_DOLIBARR', true);
+			include_once dirname(__DIR__) . '/config.php';
+			$langs->load('related@related');
+
+			if ($action_orig === 'add_related_link') {
+				$type = GETPOST('type_related_object', 'alphanohtml');
+				if (isset($this::TYPEMAP[$type])) $type = $this::TYPEMAP[$type];
+				$idRelatedObject = intval(GETPOST('id_related_object', 'int'));
+				$object->fetchObjectLinked(
+					null,
+					'',
+					null,
+					'',
+					'OR',
+					1,
+					'sourcetype',
+					false
+				);
+				if (is_array($object->linkedObjectsIds[$type]) && in_array($idRelatedObject, $object->linkedObjectsIds[$type])) {
+					// link already exists
+					$this->errors[] = $langs->trans('RelationAlreadyExists');
+				} else {
+					$db->begin();
+					$res = $object->add_object_linked( $type , $idRelatedObject);
+					if ($res <= 0) {
+						$db->rollback();
+						$this->errors[] = $langs->trans('RelationCantBeAdded');
+					} else {
+						$this->relatedLinkAdded = true;
+						include_once DOL_DOCUMENT_ROOT . '/core/class/interfaces.class.php';
+						$triggers = new Interfaces($db);
+						$restrigger = $triggers->run_triggers('RELATED_ADD_LINK', $object, $user, $langs, $conf);
+						if ($restrigger < 0) {
+							$db->rollback();
+							$this->errors = array_merge($this->errors, $triggers->errors);
+						} else {
+							$db->commit();
+						}
+						setEventMessage($langs->trans('RelationAdded'));
+					}
+				}
+
+			} elseif ($action_orig === 'delete_related_link') {
+
+				$idLink = GETPOST('id_link', 'int');
+				if($idLink){
+					$object->deleteObjectLinked(
+						'',
+						'',
+						'',
+						'',
+						$idLink
+					);
+				}
+			}
+			// après l’action, on re-fetch les objets liés (potentiellement ajoutés ou supprimés)
+			$object->fetchObjectLinked();
+
+			if (count($this->errors)) {
+				return -1;
+			}
+		}
 	}
 
 	/**
@@ -63,349 +210,274 @@ class ActionsRelated
 
 
 	function blockRelated($parameters, &$object, &$action, $hookmanager, $moreStyle='') {
-		global $langs, $db, $user, $conf, $related_link_added;
-		 	$error = 0; // Error counter
-		 	//var_dump($objet);
-		 	define('INC_FROM_DOLIBARR', true);
-		 	dol_include_once('/related/config.php');
+		global $langs,
+			   $db,
+			   $user,
+			   $conf,
+			   $related_link_added;
+		$error = 0; // Error counter
+		if (!defined('INC_FROM_DOLIBARR')) define('INC_FROM_DOLIBARR', true);
+		include_once dirname(__DIR__) . '/config.php';
 
-		 	$PDOdb = new TPDOdb;
+		$PDOdb = new TPDOdb;
 
-		 	$langs->load('related@related');
-
-		 	if(GETPOST('action') == 'add_related_link' && !$related_link_added) {
-
-				$type = GETPOST('type_related_object');
-                //var_dump($type);exit;
-				if($type == 'projet') $type = 'project';
-				else if($type == 'invoice') $type = 'facture';
-				else if($type == 'company') $type = 'societe';
-                else if($type=='facture_fournisseur') $type= 'invoice_supplier';
-                else if($type=='commande_fournisseur') $type='order_supplier';
-
-                $object->db->begin(); //escape bad recurssive inclusion
-                //TODO find a way to report this to user
-
-                $res = $object->add_object_linked( $type , GETPOST('id_related_object') );
-				$object->fetchObjectLinked();
-
-             	$object->db->commit();
-
-                if(empty($res)) {
-                	setEventMessage($langs->trans('RelationCantBeAdded' ),'errors');
-                }
-                else{
-                    $related_link_added=true;
-                    global $langs,$conf;
-
-                    dol_include_once ('/core/class/interfaces.class.php');
-                    $interface=new Interfaces($db);
-
-                    $object->id_related_object = GETPOST('id_related_object');
-                    $object->type_related_object = $type;
-
-                    $result=$interface->run_triggers('RELATED_ADD_LINK',$object,$user,$langs,$conf);
-
-                    if ($result < 0)
-                    {
-                        if (!empty($this->errors))
-                        {
-                            $this->errors=array_merge($this->errors,$interface->errors);
-                        }
-                        else
-                        {
-                            $this->errors=$interface->errors;
-                        }
-                    }
-
-                    setEventMessage($langs->trans('RelationAdded'));
-
-                }
-		 	}
-			elseif (GETPOST('action') == 'delete_related_link') {
-				$idLink = GETPOST('id_link');
-
-				if($idLink){
-
-					$PDOdb->Execute("DELETE FROM ".MAIN_DB_PREFIX."element_element WHERE rowid = ".$idLink);
-					$object->fetchObjectLinked();
-				}
+		$langs->load('related@related');
+		// Ce bazar vient de fetchObjectLinked qui s'autocensure pour les types d'objet dont le nom ne
+		// correspond pas à un module activé (sauf certains qui ont un traitement spécial).
+		$TFakeModule = array();
+		foreach ($this::MODULENAMEMAP as $objectname => $realmodulename) {
+			if (empty($conf->{$objectname}->enabled)         // le "faux" module n'est pas activé
+				&& !empty($conf->{$realmodulename}->enabled) // le vrai module correspondant doit être activé
+			) {
+				$TFakeModule[] = $objectname;
+				$conf->{$objectname} = new stdClass();
+				$conf->{$objectname}->enabled = true;
 			}
-			else {
-				// Ce bazar vient de fetchObjectLinked qui s'autocensure pour les types d'objet dont le nom ne
-				// correspond pas à un module activé (sauf certains qui ont un traitement spécial).
-				$TFakeModule = array();
-				foreach (array ('event' => 'agenda', ) as $objectname => $realmodulename) {
-					if (empty($conf->{$objectname}->enabled)         // le "faux" module n'est pas activé
-						&& !empty($conf->{$realmodulename}->enabled) // le vrai module correspondant doit être activé
-					) {
-						$TFakeModule[] = $objectname;
-						$conf->{$objectname} = new stdClass();
-						$conf->{$objectname}->enabled = true;
-					}
-				}
-				$object->fetchObjectLinked();
-				foreach ($TFakeModule as $objectname) unset($conf->{$objectname});
-			}
-		//var_dump($object->linkedObjectsIds);
-		 	?>
-		 	<div class="blockrelated_content" style="<?php echo $moreStyle ?>">
-		 		<form name="formLinkObj" action="<?php echo $_SERVER['PHP_SELF']; ?>" method="post">
-		 			<input type="hidden" name="action" value="add_related_link"  />
-		 			<input type="hidden" name="id" value="<?php echo GETPOST('id'); ?>"  />
-		 			<input type="hidden" name="socid" value="<?php echo GETPOST('socid'); ?>"  />
-		 			<input type="hidden" name="facid" value="<?php echo GETPOST('facid'); ?>"  />
-		 			<br>
-					<div align="left" class="titre"><?php echo $langs->trans('ElementToLink'); ?></div>
+		}
+		$object->fetchObjectLinked();
+		foreach ($TFakeModule as $objectname) unset($conf->{$objectname});
+		?>
+		<div class="blockrelated_content" style="<?php echo $moreStyle ?>">
+			<form name="formLinkObj" action="<?php echo $_SERVER['PHP_SELF']; ?>" method="post">
+				<input type="hidden" name="action" value="add_related_link"  />
+				<input type="hidden" name="id" value="<?php echo $object->id ? $object->id : GETPOST('id'); ?>"  />
+				<input type="hidden" name="socid" value="<?php echo GETPOST('socid'); ?>"  />
+				<input type="hidden" name="facid" value="<?php echo GETPOST('facid'); ?>"  />
+				<br>
+				<div align="left" class="titre"><?php echo $langs->trans('ElementToLink'); ?></div>
 
-			 		<input type="hidden" id="id_related_object" name="id_related_object" value=""  />
-			 		<input type="hidden" id="type_related_object" name="type_related_object" value=""  />
+				<input type="hidden" id="id_related_object" name="id_related_object" value=""  />
+				<input type="hidden" id="type_related_object" name="type_related_object" value=""  />
 
 
-			 		<table class="noborder allwidth">
-						<tr class="liste_titre">
-							<td><?php echo $langs->trans("Ref"); ?> <input type="text" id="add_related_object" name="add_related_object" value="" class="flat" /> <input type="submit" id="bt_add_related_object" name="bt_add_related_object" class="button" value="<?php echo $langs->trans('AddRelated') ?>" style="display:none" /></td>
-							<td align="center"><?php echo $langs->trans("Date"); ?></td>
-							<td align="center"><?php echo $langs->trans("Status"); ?></td>
-							<td align="center"><?php echo $langs->trans("Action"); ?></td>
-						</tr>
-						<?php
-							$class = 'pair';
+				<table class="noborder allwidth">
+					<tr class="liste_titre">
+						<td><?php echo $langs->trans("Ref"); ?> <input type="text" id="add_related_object" name="add_related_object" value="" class="flat" /> <input type="submit" id="bt_add_related_object" name="bt_add_related_object" class="button" value="<?php echo $langs->trans('AddRelated') ?>" style="display:none" /></td>
+						<td align="center"><?php echo $langs->trans("Date"); ?></td>
+						<td align="center"><?php echo $langs->trans("Status"); ?></td>
+						<td align="center"><?php echo $langs->trans("Action"); ?></td>
+					</tr>
+					<?php
+						$class = 'pair';
 
-							foreach($object->linkedObjectsIds as $linkedObjectType => &$TSubIdObject) {
-								$showThisLink = false;
-								// conditions pour afficher le lien:
-								// si l'objet lié est un tiers, un contrat/abonnement, un produit ou un projet
-								if (in_array($linkedObjectType, array('societe', 'contratabonnement', 'product', 'project', 'action')))
-									$showThisLink = true;
-								// si on est sur une fiche tiers et que l'objet lié est une facture, propale ou commande
-								elseif ($object->element == 'societe'
-										&& in_array($linkedObjectType, array('facture', 'propal', 'commande')))
-									$showThisLink = true;
-								// si on est sur une fiche événement
-								elseif (in_array($object->element, array('action')))
-									$showThisLink = true;
-								// si l'objet lié n'est pas chargé
-								elseif (!isset( $object->linkedObjects[$linkedObjectType] ))
-									$showThisLink = true;
+						foreach($object->linkedObjectsIds as $linkedObjectType => &$TSubIdObject) {
+							// le but de $showThisLink: n’afficher de lien vers l'élément que si ce n'est pas déjà
+							// pris en charge par le standard Dolibarr
+							//    @see Form::showLinkedObjectBlock()
 
-								// $showThisLink doit être false si l'objet est géré en natif
-								if (!$showThisLink) continue;
+							$showThisLink = true;
+							// TODO *********************************** remettre au clair pour éviter d’afficher des liens en double
+							// conditions pour afficher le lien:
+							// si l'objet lié est un tiers, un contrat/abonnement, un produit ou un projet
+							if (in_array($linkedObjectType, array('societe', 'contratabonnement', 'product', 'project', 'action')))
+								$showThisLink = true;
+							// si on est sur une fiche tiers et que l'objet lié est une facture, propale ou commande
+							elseif (in_array($object->element, array('societe', 'projet'))
+									&& in_array($linkedObjectType, array('facture', 'propal', 'commande')))
+								$showThisLink = true;
+							// si on est sur une fiche événement
+							elseif (in_array($object->element, array('action')))
+								$showThisLink = true;
+							// si l'objet lié n'est pas chargé
+							elseif (!isset( $object->linkedObjects[$linkedObjectType] ))
+								$showThisLink = true;
 
-								foreach($TSubIdObject as $id_object) {
-									$date_create = 0;
-									$classname = ucfirst($linkedObjectType);
-									$statut = 'N/A';
+							// $showThisLink doit être false si l'objet est géré en natif
+							if (!$showThisLink) continue;
 
-									if($linkedObjectType=='task') {
-										dol_include_once('/projet/class/task.class.php');
-									}
-									else if($linkedObjectType=='event' || $linkedObjectType=='action') {
-										dol_include_once('/comm/action/class/actioncomm.class.php');
-										$date_field = 'datep';
-										$classname='ActionComm';
-									}else if ($linkedObjectType=='project') {
-										dol_include_once('/projet/class/project.class.php');
-									}
-									else if ($linkedObjectType=='ordre_fabrication') {
-										dol_include_once('/of/class/ordre_fabrication_asset.class.php');
-										$classname='TAssetOf';
-										$abricot = true;
-									}else if ($linkedObjectType=='asset') {
-										dol_include_once('/asset/class/asset.class.php');
-										$classname='TAsset';
-										$abricot = true;
-									}else if ($linkedObjectType=='assetatm') {
-										dol_include_once('/assetatm/class/asset.class.php');
-										$classname='TAsset';
-										$abricot = true;
-									}
-									else if($linkedObjectType=='contratabonnement') {
-										require_once DOL_DOCUMENT_ROOT . '/contrat/class/contrat.class.php';
-										$classname = 'Contrat';
-									}
+							foreach($TSubIdObject as $id_object) {
+								$date_create = 0;
+								$classname = ucfirst($linkedObjectType);
+								$statut = 'N/A';
+								$date_field = null;
+								$abricot = false;
 
-									if(!class_exists($classname)) {
+								if (isset($this::CLASSNAMEMAP[$linkedObjectType])) {
+									$classname = $this::CLASSNAMEMAP[$linkedObjectType];
+								}
+								if (isset($this::CLASSPATHMAP[$linkedObjectType])) {
+									$classpath = $this::CLASSPATHMAP[$linkedObjectType];
+									dol_include_once($classpath);
+								}
+								if (isset($this::DATEFIELDMAP[$linkedObjectType])) {
+									$date_field = $this::DATEFIELDMAP[$linkedObjectType];
+								}
+								if (in_array($linkedObjectType, $this::IS_ABRICOT)) {
+									$abricot = true;
+								}
+								if(!class_exists($classname)) {
+									$link=$langs->trans('CantInstanciateClass', $classname);
+								}
+								else if(!empty($abricot)) {
 
-										$link='CantInstanciateClass '.$classname;
+									if(empty($PDOdb)) $PDOdb = new TPDOdb;
 
+									$subobject =new $classname;
+									$subobject->load($PDOdb, $id_object);
 
-									}
-									else if(!empty($abricot)) {
-
-										if(empty($PDOdb)) $PDOdb = new TPDOdb;
-
-										$subobject =new $classname;
-										$subobject->load($PDOdb, $id_object);
-
-										if(method_exists($subobject, 'getNomUrl')) {
-											$link = $subobject->getNomUrl(1);
-										}
-										else{
-											$link = $id_object.'/'.$classname;
-										}
-
-										$class = ($class == 'impair') ? 'pair' : 'impair';
-
-										$date_create = $subobject->date_cre;
-										if(method_exists($subobject, 'getLibStatut')) $statut = $subobject->getLibStatut(3);
+									if(method_exists($subobject, 'getNomUrl')) {
+										$link = $subobject->getNomUrl(1);
 									}
 									else{
-										$subobject =new $classname($db);
-										$subobject->fetch($id_object);
-
-										if(method_exists($subobject, 'getNomUrl')) {
-											$link = $subobject->getNomUrl(1);
-										}
-										else{
-											$link = $id_object.'/'.$classname;
-										}
-
-										$class = ($class == 'impair') ? 'pair' : 'impair';
-//var_dump($date_field,$subobject->{$date_field}, $classname);
-
-										if(!empty($date_field) && !empty($subobject->{$date_field})) $date_create = $subobject->{$date_field};
-										if(empty($date_create) && !empty($subobject->date_creation)) $date_create = $subobject->date_creation;
-										if(empty($date_create) && !empty($subobject->date_create)) $date_create = $subobject->date_create;
-										if(empty($date_create) && !empty($subobject->date_c)) $date_create = $subobject->date_c;
-										if(empty($date_create) && !empty($subobject->datec)) $date_create = $subobject->datec;
-
-										if(method_exists($subobject, 'getLibStatut')) $statut = $subobject->getLibStatut(3);
+										$link = $id_object.'/'.$classname;
 									}
 
-									$Tids = TRequeteCore::get_id_from_what_you_want($PDOdb, MAIN_DB_PREFIX."element_element",array('fk_source'=>$id_object,'fk_target'=>$object->id,'sourcetype'=>$linkedObjectType,'targettype'=>$object->element));
-									if(empty($Tids)) $Tids = TRequeteCore::get_id_from_what_you_want($PDOdb, MAIN_DB_PREFIX."element_element",array('fk_source'=>$object->id,'fk_target'=>$id_object,'sourcetype'=>$object->element,'targettype'=>$linkedObjectType));
+									$class = ($class == 'impair') ? 'pair' : 'impair';
 
-									?>
-									<tr class="<?php echo $class ?>">
-										<td><?php echo $link; ?></td>
-										<td align="center"><?php echo !empty($date_create) ? dol_print_date($date_create,'day') : ''; ?></td>
-										<td align="center"><?php echo $statut; ?></td>
-										<td align="center"><a href="?<?php echo ($object->element === 'societe' ? 'socid=' : 'id=').$object->id; ?>&action=delete_related_link&id_link=<?php echo $Tids[0]; ?>"><?php print img_picto($langs->trans("Delete"), 'delete.png') ?></a></td>
-									</tr>
-									<?php
+									$date_create = $subobject->date_cre;
+									if(method_exists($subobject, 'getLibStatut')) $statut = $subobject->getLibStatut(3);
+								}
+								else {
+									$subobject =new $classname($db);
+									$subobject->fetch($id_object);
 
+									if(method_exists($subobject, 'getNomUrl')) {
+										$link = $subobject->getNomUrl(1);
+									}
+									else{
+										$link = $id_object.'/'.$classname;
+									}
 
+									$class = ($class == 'impair') ? 'pair' : 'impair';
 
+									if(!empty($date_field) && !empty($subobject->{$date_field})) $date_create = $subobject->{$date_field};
+									if(empty($date_create) && !empty($subobject->date_creation)) $date_create = $subobject->date_creation;
+									if(empty($date_create) && !empty($subobject->date_create)) $date_create = $subobject->date_create;
+									if(empty($date_create) && !empty($subobject->date_c)) $date_create = $subobject->date_c;
+									if(empty($date_create) && !empty($subobject->datec)) $date_create = $subobject->datec;
+
+									if(method_exists($subobject, 'getLibStatut')) $statut = $subobject->getLibStatut(3);
 								}
 
+								$Tids = TRequeteCore::get_id_from_what_you_want($PDOdb, MAIN_DB_PREFIX."element_element",array('fk_source'=>$id_object,'fk_target'=>$object->id,'sourcetype'=>$linkedObjectType,'targettype'=>$object->element));
+								if(empty($Tids)) $Tids = TRequeteCore::get_id_from_what_you_want($PDOdb, MAIN_DB_PREFIX."element_element",array('fk_source'=>$object->id,'fk_target'=>$id_object,'sourcetype'=>$object->element,'targettype'=>$linkedObjectType));
+
+								?>
+								<tr class="<?php echo $class ?>">
+									<td><?php echo $link; ?></td>
+									<td align="center"><?php echo !empty($date_create) ? dol_print_date($date_create,'day') : ''; ?></td>
+									<td align="center"><?php echo $statut; ?></td>
+									<td align="center"><a href="?<?php echo ($object->element === 'societe' ? 'socid=' : 'id=').$object->id; ?>&action=delete_related_link&id_link=<?php echo $Tids[0]; ?>"><?php print img_picto($langs->trans("Delete"), 'delete.png') ?></a></td>
+								</tr>
+								<?php
+
 							}
-
-						?>
-						</table>
-
-
-		 		</form>
-		 	</div>
-		 		<script type="text/javascript">
-
-		 			$(document).ready(function() {
-
-                        $('.blockrelated_content').each(function() {
-                            $(this).closest('div.tabsAction').after($(this));
-                        });
-
-		 				$('#add_related_object').autocomplete({
-					      source: function( request, response ) {
-					        $.ajax({
-					          url: "<?php echo dol_buildpath('/related/script/interface.php',1) ?>",
-					          dataType: "json",
-					          data: {
-					              key: request.term
-					            ,get:'search'
-					          }
-					          ,success: function( data ) {
-					          	  var c = [];
-					              $.each(data, function (i, cat) {
-
-					              	var first = true;
-					              	$.each(cat, function(j, label) {
-
-					              		if(first) {
-					              			c.push({value:i, label:i, object:'title'});
-					              			first = false;
-					              		}
-
-					              		c.push({ value: j, label:'  '+label, object:i});
-
-					              	});
+						}
+					?>
+					</table>
 
 
-					              });
+			</form>
+		</div>
+			<script type="text/javascript">
 
-					              response(c);
+				$(document).ready(function() {
 
+					$('.blockrelated_content').each(function() {
+						$(this).closest('div.tabsAction').after($(this));
+					});
 
+					$('#add_related_object').autocomplete({
+					  source: function( request, response ) {
+						$.ajax({
+						  url: "<?php echo dol_buildpath('/related/script/interface.php',1) ?>",
+						  dataType: "json",
+						  data: {
+							  key: request.term
+							,get:'search'
+						  }
+						  ,success: function( data ) {
+							  var c = [];
+							  $.each(data, function (i, cat) {
 
-					          }
-					        });
-					      },
-					      minLength: 1,
-					      select: function( event, ui ) {
+								var first = true;
+								$.each(cat, function(j, label) {
 
-					       	if(ui.item.object == 'title') return false;
-					       	else {
-					       		$('#id_related_object').val(ui.item.value);
-					       		$('#add_related_object').val(ui.item.label.trim());
-					       		$('#type_related_object').val(ui.item.object);
+									if(first) {
+										c.push({value:i, label:i, object:'title'});
+										first = false;
+									}
 
-					       		$('#bt_add_related_object').css('display','inline');
+									c.push({ value: j, label:'  '+label, object:i});
 
-					       		return false;
-					       	}
-
-					      },
-					      open: function( event, ui ) {
-					        $( this ).removeClass( "ui-corner-all" ).addClass( "ui-corner-top" );
-					      },
-					      close: function() {
-					        $( this ).removeClass( "ui-corner-top" ).addClass( "ui-corner-all" );
-					      }
-					    });
-
-		 				$( "#add_related_object" ).autocomplete().data("uiAutocomplete")._renderItem = function( ul, item ) {
-
-					      	  $li = $( "<li />" )
-								    .attr( "data-value", item.value )
-								    .append( item.label )
-								    .appendTo( ul );
-
-							  if(item.object=="title") $li.css("font-weight","bold");
-
-							  return $li;
-					    };
+								});
 
 
-		 				var blockrelated = $('div.tabsAction .blockrelated_content');
-		 				if (blockrelated.length == 1)
-		 				{
-		 					if ($('.blockrelated_content').length > 1)
-		 					{
-		 						blockrelated.remove();
-		 					}
-		 					else
-		 					{
-			 					blockrelated.appendTo($('div.tabsAction'));
-		 					}
-		 				}
+							  });
 
-		 			});
-
-		 		</script>
-
-		 	<?php
+							  response(c);
 
 
-		 	if (! $error)
-			{
 
-				return 0; // or return 1 to replace standard code
-			}
-			else
-			{
-				$this->errors[] = 'Cant link related';
-				return -1;
-			}
+						  }
+						});
+					  },
+					  minLength: 1,
+					  select: function( event, ui ) {
+
+						if(ui.item.object == 'title') return false;
+						else {
+							$('#id_related_object').val(ui.item.value);
+							$('#add_related_object').val(ui.item.label.trim());
+							$('#type_related_object').val(ui.item.object);
+
+							$('#bt_add_related_object').css('display','inline');
+
+							return false;
+						}
+
+					  },
+					  open: function( event, ui ) {
+						$( this ).removeClass( "ui-corner-all" ).addClass( "ui-corner-top" );
+					  },
+					  close: function() {
+						$( this ).removeClass( "ui-corner-top" ).addClass( "ui-corner-all" );
+					  }
+					});
+
+					$( "#add_related_object" ).autocomplete().data("uiAutocomplete")._renderItem = function( ul, item ) {
+
+						  $li = $( "<li />" )
+								.attr( "data-value", item.value )
+								.append( item.label )
+								.appendTo( ul );
+
+						  if(item.object=="title") $li.css("font-weight","bold");
+
+						  return $li;
+					};
+
+
+					var blockrelated = $('div.tabsAction .blockrelated_content');
+					if (blockrelated.length == 1)
+					{
+						if ($('.blockrelated_content').length > 1)
+						{
+							blockrelated.remove();
+						}
+						else
+						{
+							blockrelated.appendTo($('div.tabsAction'));
+						}
+					}
+
+				});
+
+			</script>
+
+		<?php
+
+
+		if (! $error)
+		{
+
+			return 0; // or return 1 to replace standard code
+		}
+		else
+		{
+			$this->errors[] = 'Cant link related';
+			return -1;
+		}
 	}
 
 	function addMoreActionsButtons($parameters, &$object, &$action, $hookmanager) {
@@ -421,19 +493,19 @@ class ActionsRelated
 		if (in_array('commonobject', explode(':', $parameters['context'])))
 
 		{
-		 	return $this->blockRelated($parameters, $object, $action, $hookmanager);
+			return $this->blockRelated($parameters, $object, $action, $hookmanager);
 
 		}
 
 		return 0;
 	}
 
-    function mainCardTabAddMore($parameters, &$object, &$action, $hookmanager) {
-        if( in_array('projectcard', explode(':', $parameters['context']))) {
+	function mainCardTabAddMore($parameters, &$object, &$action, $hookmanager) {
+		if( in_array('projectcard', explode(':', $parameters['context']))) {
 
-            return $this->blockRelated($parameters, $object, $action, $hookmanager, "width:50%;clear:both;margin-bottom:20px;margin-left:20px;");
-        }
+			return $this->blockRelated($parameters, $object, $action, $hookmanager, "width:50%;clear:both;margin-bottom:20px;margin-left:20px;");
+		}
 
-    }
+	}
 
 }

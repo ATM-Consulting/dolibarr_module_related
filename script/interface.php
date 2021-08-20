@@ -21,7 +21,23 @@ function _search($keyword) {
 
 	$Tab = array();
 
-	$TType=array('invoice','commande','shipping','propal','projet','task','company','contact','event', 'product', 'facture_fournisseur', 'commande_fournisseur','fichinter','contrat');
+	$TType=array(
+		'invoice',
+		'commande',
+		'shipping',
+		'propal',
+		'project',
+		'task',
+		'company',
+		'contact',
+		'event',
+		'product',
+		'facture_fournisseur',
+		'commande_fournisseur',
+		'fichinter',
+		'contrat',
+		'ticket',
+	);
 
 	if(!empty($conf->of->enabled)) {
 		$TType[] = 'ordre_fabrication';
@@ -61,7 +77,7 @@ function _search_type($type, $keyword) {
 		$element= 'societe';
 		$ref_field='nom';
 	}
-	elseif($type == 'projet') {
+	elseif($type == 'project') {
 		$table = MAIN_DB_PREFIX.'projet';
 		$objname = 'Project';
 		$element = 'project';
@@ -160,11 +176,10 @@ function _search_type($type, $keyword) {
 	}
 	else if(!empty($conf->assetatm->enabled) && $type == 'assetatm') {
 		$table=MAIN_DB_PREFIX.'assetatm';
-        $objname='TAsset';
-        $ref_field='serial_number';
-        $id_field='rowid';
+		$objname='TAsset';
+		$ref_field='serial_number';
+		$id_field='rowid';
 	}
-
 
 	$Tab = array();
 
