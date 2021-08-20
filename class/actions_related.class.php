@@ -66,6 +66,7 @@ class ActionsRelated
 		'assetatm' => '/assetatm/class/asset.class.php',
 		'contratabonnement' => '/contrat/class/contrat.class.php',
 		'ticket' => '/ticket/class/ticket.class.php',
+		'fichinter' => '/fichinter/class/fichinter.class.php',
 	);
 
 	// type => class name; pas besoin si ucfirst(type) == classname
@@ -77,6 +78,7 @@ class ActionsRelated
 		'assetatm' => 'TAsset',
 		'contratabonnement' => 'Contrat',
 		'projet' => 'Project',
+		'fichinter' => 'Fichinter',
 	);
 
 	const DATEFIELDMAP = array(
