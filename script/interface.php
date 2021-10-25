@@ -1,5 +1,5 @@
 <?php
-
+	if (!defined('NOTOKENRENEWAL')) define('NOTOKENRENEWAL', 1); // Disables token renewal
 	require '../config.php';
 
 	$get = GETPOST('get');
