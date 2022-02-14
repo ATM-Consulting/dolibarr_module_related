@@ -2,7 +2,7 @@
 	if (!defined('NOTOKENRENEWAL')) define('NOTOKENRENEWAL', 1); // Disables token renewal
 	require '../config.php';
 
-	$get = GETPOST('get');
+	$get = GETPOST('get','alpha');
 
 	switch ($get) {
 		case 'search':
