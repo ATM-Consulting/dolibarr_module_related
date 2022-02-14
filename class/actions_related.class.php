@@ -241,9 +241,9 @@ class ActionsRelated
 		<div class="blockrelated_content" style="<?php echo $moreStyle ?>">
 			<form name="formLinkObj" action="<?php echo $_SERVER['PHP_SELF']; ?>" method="post">
 				<input type="hidden" name="action" value="add_related_link"  />
-				<input type="hidden" name="id" value="<?php echo $object->id ? $object->id : GETPOST('id'); ?>"  />
-				<input type="hidden" name="socid" value="<?php echo GETPOST('socid'); ?>"  />
-				<input type="hidden" name="facid" value="<?php echo GETPOST('facid'); ?>"  />
+				<input type="hidden" name="id" value="<?php echo $object->id ? $object->id : GETPOST('id','int'); ?>"  />
+				<input type="hidden" name="socid" value="<?php echo GETPOST('socid','int'); ?>"  />
+				<input type="hidden" name="facid" value="<?php echo GETPOST('facid','int'); ?>"  />
 				<br>
 				<div align="left" class="titre"><?php echo $langs->trans('ElementToLink'); ?></div>
 
