@@ -215,6 +215,7 @@ class ActionsRelated
 			   $user,
 			   $conf,
 			   $related_link_added;
+		$newToken = function_exists('newToken')?newToken():$_SESSION['newtoken'];
 		$error = 0; // Error counter
 		if (!defined('INC_FROM_DOLIBARR')) define('INC_FROM_DOLIBARR', true);
 		include_once dirname(__DIR__) . '/config.php';
@@ -357,7 +358,7 @@ class ActionsRelated
 									<td><?php echo $link; ?></td>
 									<td align="center"><?php echo !empty($date_create) ? dol_print_date($date_create,'day') : ''; ?></td>
 									<td align="center"><?php echo $statut; ?></td>
-									<td align="center"><a href="?<?php echo ($object->element === 'societe' ? 'socid=' : 'id=').$object->id; ?>&action=delete_related_link&id_link=<?php echo $Tids[0]; ?>"><?php print img_picto($langs->trans("Delete"), 'delete.png') ?></a></td>
+									<td align="center"><a href="?<?php echo ($object->element === 'societe' ? 'socid=' : 'id=').$object->id; ?>&token=<?php echo $newToken; ?>&action=delete_related_link&id_link=<?php echo $Tids[0]; ?>"><?php print img_picto($langs->trans("Delete"), 'delete.png') ?></a></td>
 								</tr>
 								<?php
 
