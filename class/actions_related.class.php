@@ -215,6 +215,7 @@ class ActionsRelated
 			   $user,
 			   $conf,
 			   $related_link_added;
+		$newToken = function_exists('newToken')?newToken():$_SESSION['newtoken'];
 		$error = 0; // Error counter
 		if (!defined('INC_FROM_DOLIBARR')) define('INC_FROM_DOLIBARR', true);
 		include_once dirname(__DIR__) . '/config.php';
@@ -240,9 +241,9 @@ class ActionsRelated
 		<div class="blockrelated_content" style="<?php echo $moreStyle ?>">
 			<form name="formLinkObj" action="<?php echo $_SERVER['PHP_SELF']; ?>" method="post">
 				<input type="hidden" name="action" value="add_related_link"  />
-				<input type="hidden" name="id" value="<?php echo $object->id ? $object->id : GETPOST('id'); ?>"  />
-				<input type="hidden" name="socid" value="<?php echo GETPOST('socid'); ?>"  />
-				<input type="hidden" name="facid" value="<?php echo GETPOST('facid'); ?>"  />
+				<input type="hidden" name="id" value="<?php echo $object->id ? $object->id : GETPOST('id','int'); ?>"  />
+				<input type="hidden" name="socid" value="<?php echo GETPOST('socid','int'); ?>"  />
+				<input type="hidden" name="facid" value="<?php echo GETPOST('facid','int'); ?>"  />
 				<br>
 				<div align="left" class="titre"><?php echo $langs->trans('ElementToLink'); ?></div>
 
@@ -357,7 +358,7 @@ class ActionsRelated
 									<td><?php echo $link; ?></td>
 									<td align="center"><?php echo !empty($date_create) ? dol_print_date($date_create,'day') : ''; ?></td>
 									<td align="center"><?php echo $statut; ?></td>
-									<td align="center"><a href="?<?php echo ($object->element === 'societe' ? 'socid=' : 'id=').$object->id; ?>&action=delete_related_link&id_link=<?php echo $Tids[0]; ?>"><?php print img_picto($langs->trans("Delete"), 'delete.png') ?></a></td>
+									<td align="center"><a href="?<?php echo ($object->element === 'societe' ? 'socid=' : 'id=').$object->id; ?>&token=<?php echo $newToken; ?>&action=delete_related_link&id_link=<?php echo $Tids[0]; ?>"><?php print img_picto($langs->trans("Delete"), 'delete.png') ?></a></td>
 								</tr>
 								<?php
 
