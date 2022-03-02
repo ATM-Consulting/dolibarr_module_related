@@ -67,6 +67,7 @@ class ActionsRelated
 		'contratabonnement' => '/contrat/class/contrat.class.php',
 		'ticket' => '/ticket/class/ticket.class.php',
 		'fichinter' => '/fichinter/class/fichinter.class.php',
+		'order_supplier' => '/fourn/class/fournisseur.commande.class.php',
 	);
 
 	// type => class name; pas besoin si ucfirst(type) == classname
@@ -79,6 +80,7 @@ class ActionsRelated
 		'contratabonnement' => 'Contrat',
 		'projet' => 'Project',
 		'fichinter' => 'Fichinter',
+		'order_supplier' => 'CommandeFournisseur',
 	);
 
 	const DATEFIELDMAP = array(
