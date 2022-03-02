@@ -68,6 +68,7 @@ class ActionsRelated
 		'ticket' => '/ticket/class/ticket.class.php',
 		'fichinter' => '/fichinter/class/fichinter.class.php',
 		'order_supplier' => '/fourn/class/fournisseur.commande.class.php',
+		'shipping' => '/expedition/class/expedition.class.php',
 	);
 
 	// type => class name; pas besoin si ucfirst(type) == classname
@@ -81,6 +82,7 @@ class ActionsRelated
 		'projet' => 'Project',
 		'fichinter' => 'Fichinter',
 		'order_supplier' => 'CommandeFournisseur',
+		'shipping' => 'Expedition'
 	);
 
 	const DATEFIELDMAP = array(
@@ -360,7 +362,11 @@ class ActionsRelated
 									<td><?php echo $link; ?></td>
 									<td align="center"><?php echo !empty($date_create) ? dol_print_date($date_create,'day') : ''; ?></td>
 									<td align="center"><?php echo $statut; ?></td>
-									<td align="center"><a href="?<?php echo ($object->element === 'societe' ? 'socid=' : 'id=').$object->id; ?>&token=<?php echo $newToken; ?>&action=delete_related_link&id_link=<?php echo $Tids[0]; ?>"><?php print img_picto($langs->trans("Delete"), 'delete.png') ?></a></td>
+									<td align="center">
+									<?php if(!(($object->element === 'shipping' && $subobject->element === 'commande') || ($object->element === 'commande' && $subobject->element === 'shipping'))) { // On affiche la poubelle uniquement s'il ne s'agit pas d'un lien entre commande et expédition ?>
+										<a href="?<?php echo ($object->element === 'societe' ? 'socid=' : 'id=').$object->id; ?>&token=<?php echo $newToken; ?>&action=delete_related_link&id_link=<?php echo $Tids[0]; ?>"><?php print img_picto($langs->trans("Delete"), 'delete.png') ?></a>
+									<?php } ?>
+									</td>
 								</tr>
 								<?php
 
