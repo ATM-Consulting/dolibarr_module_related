@@ -69,6 +69,7 @@ class ActionsRelated
 		'fichinter' => '/fichinter/class/fichinter.class.php',
 		'order_supplier' => '/fourn/class/fournisseur.commande.class.php',
 		'shipping' => '/expedition/class/expedition.class.php',
+		'invoice_supplier' => '/fourn/class/fournisseur.facture.class.php'
 	);
 
 	// type => class name; pas besoin si ucfirst(type) == classname
@@ -82,7 +83,8 @@ class ActionsRelated
 		'projet' => 'Project',
 		'fichinter' => 'Fichinter',
 		'order_supplier' => 'CommandeFournisseur',
-		'shipping' => 'Expedition'
+		'shipping' => 'Expedition',
+		'invoice_supplier' => 'FactureFournisseur'
 	);
 
 	const DATEFIELDMAP = array(

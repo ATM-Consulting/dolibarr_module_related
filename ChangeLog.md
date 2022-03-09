@@ -1,6 +1,7 @@
 # ChangeLog for Related
 
 ## 1.4
+- FIX : relatedBlock between order supplier and invoice supplier *09/03/2022* - 1.4.6
 - FIX : relatedBlock between invoice and shipping *02/03/2022* - 1.4.5
 - FIX : relatedBlock for supplier orders *01/03/2022* - 1.4.4
 - FIX : add type to getpost   *14/02/2022* - 1.4.3
