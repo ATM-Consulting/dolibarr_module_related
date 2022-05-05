@@ -1,6 +1,7 @@
 # ChangeLog for Related
 
 ## 1.4
+- FIX : Remove duplicate link  *05/05/2022* - 1.4.8
 - FIX : related hook in propalcard *07/04/2022* - 1.4.7
 - FIX : relatedBlock between order supplier and invoice supplier *09/03/2022* - 1.4.6
 - FIX : relatedBlock between invoice and shipping *02/03/2022* - 1.4.5
