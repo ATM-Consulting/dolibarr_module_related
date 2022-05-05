@@ -121,6 +121,25 @@ class ActionsRelated
 	public $relatedLinkAdded = false;
 
 	/**
+	 * liste des elements pris en charge nativement par Dolibarr
+	 * not use const to be able to use hook
+	 * @var array $knowedElements
+	 */
+	public $knownElements = array(
+		'project',
+		'asset',
+		'contratabonnement',
+		'projet',
+		'fichinter',
+		'order_supplier',
+		'shipping',
+		'invoice_supplier',
+		'commande',
+		'facture',
+		'propal'
+	);
+
+	/**
 	 * Constructor
 	 */
 	public function __construct()
@@ -250,8 +269,10 @@ class ActionsRelated
 				<input type="hidden" name="id" value="<?php echo $object->id ? $object->id : GETPOST('id','int'); ?>"  />
 				<input type="hidden" name="socid" value="<?php echo GETPOST('socid','int'); ?>"  />
 				<input type="hidden" name="facid" value="<?php echo GETPOST('facid','int'); ?>"  />
-				<br>
-				<div align="left" class="titre"><?php echo $langs->trans('ElementToLink'); ?></div>
+
+				<input type="hidden" name="token" value="<?php echo function_exists('newToken') ? newToken() : $_SESSION['newtoken']; ?>"  />
+
+				<div class="titre"><i class="fa fa-link" style="color:var(--colortexttitlenotab, #25b7d3 );" ></i> <?php echo $langs->trans('ElementToLink'); ?></div>
 
 				<input type="hidden" id="id_related_object" name="id_related_object" value=""  />
 				<input type="hidden" id="type_related_object" name="type_related_object" value=""  />
@@ -272,9 +293,10 @@ class ActionsRelated
 							// pris en charge par le standard Dolibarr
 							//    @see Form::showLinkedObjectBlock()
 
-							$showThisLink = true;
-							// TODO *********************************** remettre au clair pour éviter d’afficher des liens en double
-							// conditions pour afficher le lien:
+							// les élements connus de Dolibarr doivent être écarté si il partage le même tiers
+							$showThisLink = !in_array($linkedObjectType, $this->knownElements);
+
+							/** Cas particuliers pour afficher le lien : **/
 							// si l'objet lié est un tiers, un contrat/abonnement, un produit ou un projet
 							if (in_array($linkedObjectType, array('societe', 'contratabonnement', 'product', 'project', 'action')))
 								$showThisLink = true;
@@ -360,7 +382,7 @@ class ActionsRelated
 								if(empty($Tids)) $Tids = TRequeteCore::get_id_from_what_you_want($PDOdb, MAIN_DB_PREFIX."element_element",array('fk_source'=>$object->id,'fk_target'=>$id_object,'sourcetype'=>$object->element,'targettype'=>$linkedObjectType));
 
 								?>
-								<tr class="<?php echo $class ?>">
+								<tr class="oddeven">
 									<td><?php echo $link; ?></td>
 									<td align="center"><?php echo !empty($date_create) ? dol_print_date($date_create,'day') : ''; ?></td>
 									<td align="center"><?php echo $statut; ?></td>
