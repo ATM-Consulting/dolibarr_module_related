@@ -58,7 +58,10 @@ class modRelated extends DolibarrModules
 		// Module description, used if translation string 'ModuleXXXDesc' not found (where XXX is value of numeric property 'numero' of module)
 		$this->description = "Description of module Related";
 		// Possible values for version are: 'development', 'experimental', 'dolibarr' or version
-		$this->version = '1.4.7';
+		$this->version = '1.5.0';
+		// Url to the file with your last numberversion of this module
+		require_once __DIR__ . '/../../class/techatm.class.php';
+		$this->url_last_version = \related\TechATM::getLastModuleVersionUrl($this);
 		// Key used in llx_const table to save module status enabled/disabled (where MYMODULE is value of property name of module in uppercase)
 		$this->const_name = 'MAIN_MODULE_'.strtoupper($this->name);
 		// Where to store the module in setup page (0=common,1=interface,2=others,3=very specific)
@@ -116,7 +119,7 @@ class modRelated extends DolibarrModules
 		$this->dirs = array();
 
 		// Config pages. Put here list of php page, stored into related/admin directory, to use to setup module.
-		$this->config_page_url = false;
+		$this->config_page_url = array("related_about.php@related");
 
 		// Dependencies
 		$this->hidden = false;			// A condition to hide module

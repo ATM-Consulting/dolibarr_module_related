@@ -32,10 +32,10 @@ function relatedAdminPrepareHead()
     $h = 0;
     $head = array();
 
-    $head[$h][0] = dol_buildpath("/related/admin/related_setup.php", 1);
-    $head[$h][1] = $langs->trans("Parameters");
-    $head[$h][2] = 'settings';
-    $h++;
+//    $head[$h][0] = dol_buildpath("/related/admin/related_setup.php", 1);
+//    $head[$h][1] = $langs->trans("Parameters");
+//    $head[$h][2] = 'settings';
+//    $h++;
     $head[$h][0] = dol_buildpath("/related/admin/related_about.php", 1);
     $head[$h][1] = $langs->trans("About");
     $head[$h][2] = 'about';
