@@ -1,8 +1,8 @@
 <?php
-
+	if (!defined('NOTOKENRENEWAL')) define('NOTOKENRENEWAL', 1); // Disables token renewal
 	require '../config.php';
 
-	$get = GETPOST('get');
+	$get = GETPOST('get','alpha');
 
 	switch ($get) {
 		case 'search':
@@ -21,11 +21,35 @@ function _search($keyword) {
 
 	$Tab = array();
 
-	$TType=array('invoice','commande','shipping','propal','projet','task','company','contact','event', 'product', 'facture_fournisseur', 'commande_fournisseur','fichinter');
+	$TType=array(
+		'invoice',
+		'commande',
+		'shipping',
+		'propal',
+		'project',
+		'task',
+		'company',
+		'contact',
+		'event',
+		'product',
+		'facture_fournisseur',
+		'commande_fournisseur',
+		'fichinter',
+		'contrat',
+		'ticket',
+	);
 
 	if(!empty($conf->of->enabled)) {
 		$TType[] = 'ordre_fabrication';
 	}
+
+    if(!empty($conf->asset->enabled)) {
+        $TType[] = 'asset';
+    }
+
+    if(!empty($conf->assetatm->enabled)) {
+        $TType[] = 'assetatm';
+    }
 
 	//$TType=array('facture_fournisseur', 'commande_fournisseur');
 	foreach($TType as $type) {
@@ -53,7 +77,7 @@ function _search_type($type, $keyword) {
 		$element= 'societe';
 		$ref_field='nom';
 	}
-	elseif($type == 'projet') {
+	elseif($type == 'project') {
 		$table = MAIN_DB_PREFIX.'projet';
 		$objname = 'Project';
 		$element = 'project';
@@ -82,14 +106,14 @@ function _search_type($type, $keyword) {
 		$join_to_soc = true;
 	}
 	elseif($type == 'shipping') {
-                $table = MAIN_DB_PREFIX.'expedition';
-                $objname = 'Expedition';
-                $join_to_soc = true;
-        }
+        $table = MAIN_DB_PREFIX.'expedition';
+        $objname = 'Expedition';
+        $join_to_soc = true;
+	}
 	elseif($type == 'invoice') {
 		$table = MAIN_DB_PREFIX.'facture';
 		$objname = 'Facture';
-		$ref_field = 'facnumber';
+		$ref_field = ((float) DOL_VERSION < 10.0 ? 'facnumber' : 'ref');
 		$element = 'facture';
 		$join_to_soc = true;
 	}
@@ -126,6 +150,12 @@ function _search_type($type, $keyword) {
         $element = 'commande_fournisseur';
 		$join_to_soc = true;
     }
+	elseif($type == 'contrat') {
+		$table = MAIN_DB_PREFIX.'contrat';
+		$ref_field = 'ref';
+		$element = 'contrat';
+		$join_to_soc = true;
+	}
     elseif ($type=='fichinter'){
     	$table=MAIN_DB_PREFIX.'fichinter';
     	$objname='Fichinter';
@@ -138,7 +168,18 @@ function _search_type($type, $keyword) {
         $ref_field='numero';
 
 	}
-
+	else if(!empty($conf->asset->enabled) && $type == 'asset') {
+		$table=MAIN_DB_PREFIX.'asset';
+        $objname='TAsset';
+        $ref_field='serial_number';
+        $id_field='rowid';
+	}
+	else if(!empty($conf->assetatm->enabled) && $type == 'assetatm') {
+		$table=MAIN_DB_PREFIX.'assetatm';
+		$objname='TAsset';
+		$ref_field='serial_number';
+		$id_field='rowid';
+	}
 
 	$Tab = array();
 
@@ -169,12 +210,12 @@ function _search_type($type, $keyword) {
 		}
 	}
 	$sql.=" WHERE 1 ";
-	
+
 	if(!empty($element))
 	{
 		$sql.= '  AND t.entity IN (' . getEntity($element) . ')  ';
 	}
-	
+
 	if ($db->type == 'pgsql' && ($ref_field=='id' || $ref_field=='rowid')) {
 		$sql.=" AND CAST(t.".$ref_field." AS TEXT) LIKE '".$keyword."%' ";
 	} else {
@@ -187,8 +228,8 @@ function _search_type($type, $keyword) {
 		$sql.=" OR t.".$ref_field2." LIKE '".$keyword."%' ";
 	}
 
-	
-	
+
+
 	$sql.=" LIMIT 20 ";
 	//var_dump($sql);
     //$sql="SELECT ff.ref FROM  ".MAIN_DB_PREFIX."facture_fourn ff WHERE ";
