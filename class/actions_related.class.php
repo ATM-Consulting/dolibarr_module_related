@@ -289,6 +289,7 @@ class ActionsRelated
 						$class = 'pair';
 
 						foreach($object->linkedObjectsIds as $linkedObjectType => &$TSubIdObject) {
+
 							// le but de $showThisLink: n’afficher de lien vers l'élément que si ce n'est pas déjà
 							// pris en charge par le standard Dolibarr
 							//    @see Form::showLinkedObjectBlock()
@@ -314,7 +315,7 @@ class ActionsRelated
 							// $showThisLink doit être false si l'objet est géré en natif
 							if (!$showThisLink) continue;
 
-							foreach($TSubIdObject as $id_object) {
+							foreach($TSubIdObject as $k => $id_object) {
 								$date_create = 0;
 								$classname = ucfirst($linkedObjectType);
 								$statut = 'N/A';
@@ -336,6 +337,19 @@ class ActionsRelated
 								}
 								if(!class_exists($classname)) {
 									$link=$langs->trans('CantInstanciateClass', $classname);
+									if (isset($object->linkedObjects[$linkedObjectType][$k])) 
+									{
+										$subobject = $object->linkedObjects[$linkedObjectType][$k];
+										$link = $subobject->getNomUrl(1);
+										$class = ($class == 'impair') ? 'pair' : 'impair';
+
+                                                                        	if(!empty($date_field) && !empty($subobject->{$date_field})) $date_create = $subobject->{$date_field};
+                                                                        	if(empty($date_create) && !empty($subobject->date_creation)) $date_create = $subobject->date_creation;
+                                                                        	if(empty($date_create) && !empty($subobject->date_create)) $date_create = $subobject->date_create;
+                                                                        	if(empty($date_create) && !empty($subobject->date_c)) $date_create = $subobject->date_c;
+                                                                        	if(empty($date_create) && !empty($subobject->datec)) $date_create = $subobject->datec;
+										if(method_exists($subobject, 'getLibStatut')) $statut = $subobject->getLibStatut(3);
+									}
 								}
 								else if(!empty($abricot)) {
 
