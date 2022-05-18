@@ -4,6 +4,7 @@
 - NEW : Ajout de la class TechATM pour l'affichage de la page "A propos" *11/05/2022* 1.5.0
 
 ## 1.4
+- FIX : Get unknown class from where it is already instanciated *18/05/2022* - 1.4.9
 - FIX : Remove duplicate link  *05/05/2022* - 1.4.8
 - FIX : related hook in propalcard *07/04/2022* - 1.4.7
 - FIX : relatedBlock between order supplier and invoice supplier *09/03/2022* - 1.4.6
