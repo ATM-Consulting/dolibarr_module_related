@@ -154,7 +154,10 @@ class ActionsRelated
 	 * @return int
 	 */
 	function doActions($parameters, &$object, &$action, $hookmanager) {
-		if ($action === 'add_related_link' || $action === 'delete_related_link') {
+
+		global $user;
+		
+		if (($action === 'add_related_link' || $action === 'delete_related_link') && !empty($user->rights->related->create)) {
 			global $langs, $conf, $user;
 			$action_orig = $action; // copy $action onto non-reference variable before resetting it
 			$action = '';
@@ -280,7 +283,13 @@ class ActionsRelated
 
 				<table class="noborder allwidth">
 					<tr class="liste_titre">
-						<td><?php echo $langs->trans("Ref"); ?> <input type="text" id="add_related_object" name="add_related_object" value="" class="flat" /> <input type="submit" id="bt_add_related_object" name="bt_add_related_object" class="button" value="<?php echo $langs->trans('AddRelated') ?>" style="display:none" /></td>
+						<td>
+						<?php
+							echo $langs->trans("Ref");
+							if(!empty($user->rights->related->create)) print '<input type="text" id="add_related_object" name="add_related_object" value="" class="flat" />';
+						?>
+
+						<input type="submit" id="bt_add_related_object" name="bt_add_related_object" class="button" value="<?php echo $langs->trans('AddRelated') ?>" style="display:none" /></td>
 						<td align="center"><?php echo $langs->trans("Date"); ?></td>
 						<td align="center"><?php echo $langs->trans("Status"); ?></td>
 						<td align="center"><?php echo $langs->trans("Action"); ?></td>
@@ -337,7 +346,7 @@ class ActionsRelated
 								}
 								if(!class_exists($classname)) {
 									$link=$langs->trans('CantInstanciateClass', $classname);
-									if (isset($object->linkedObjects[$linkedObjectType][$k])) 
+									if (isset($object->linkedObjects[$linkedObjectType][$k]))
 									{
 										$subobject = $object->linkedObjects[$linkedObjectType][$k];
 										$link = $subobject->getNomUrl(1);
@@ -401,7 +410,7 @@ class ActionsRelated
 									<td align="center"><?php echo !empty($date_create) ? dol_print_date($date_create,'day') : ''; ?></td>
 									<td align="center"><?php echo $statut; ?></td>
 									<td align="center">
-									<?php if(!(($object->element === 'shipping' && $subobject->element === 'commande') || ($object->element === 'commande' && $subobject->element === 'shipping'))) { // On affiche la poubelle uniquement s'il ne s'agit pas d'un lien entre commande et expédition ?>
+									<?php if(!empty($user->rights->related->create) && !(($object->element === 'shipping' && $subobject->element === 'commande') || ($object->element === 'commande' && $subobject->element === 'shipping'))) { // On affiche la poubelle uniquement si on a la permission de le faire et s'il ne s'agit pas d'un lien entre commande et expédition ?>
 										<a href="?<?php echo ($object->element === 'societe' ? 'socid=' : 'id=').$object->id; ?>&token=<?php echo $newToken; ?>&action=delete_related_link&id_link=<?php echo $Tids[0]; ?>"><?php print img_picto($langs->trans("Delete"), 'delete.png') ?></a>
 									<?php } ?>
 									</td>

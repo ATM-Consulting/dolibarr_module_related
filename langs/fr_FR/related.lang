@@ -10,3 +10,5 @@ AddRelated=Ajouter ce lien
 ElementToLink=Elements particuliers liés
 RelationAdded=Relation ajoutée
 CantInstanciateClass = Classe introuvable: %s
+
+RightLinkAndDelink=Lier / délier des éléments particuliers
