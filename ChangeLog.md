@@ -5,6 +5,7 @@
 
 
 ## 1.6
+- FIX: Compatibility V16 - newToken and family - *06/06/2022* - 1.6.1
 - NEW : Ajout d'une permission de lier / délier des éléments particuliers *23/05/2022* - 1.6.0
 - NEW : Ajout de la class TechATM pour l'affichage de la page "A propos" *11/05/2022* 1.5.0
 

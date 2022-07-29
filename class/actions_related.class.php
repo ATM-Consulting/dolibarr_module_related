@@ -243,8 +243,8 @@ class ActionsRelated
 			   $user,
 			   $conf,
 			   $related_link_added;
-		$newToken = function_exists('newToken')?newToken():$_SESSION['newtoken'];
-		$error = 0; // Error counter
+        $newToken = function_exists('newToken') ? newToken() : $_SESSION['newtoken'];
+        $error = 0; // Error counter
 		if (!defined('INC_FROM_DOLIBARR')) define('INC_FROM_DOLIBARR', true);
 		include_once dirname(__DIR__) . '/config.php';
 
@@ -273,7 +273,7 @@ class ActionsRelated
 				<input type="hidden" name="socid" value="<?php echo GETPOST('socid','int'); ?>"  />
 				<input type="hidden" name="facid" value="<?php echo GETPOST('facid','int'); ?>"  />
 
-				<input type="hidden" name="token" value="<?php echo function_exists('newToken') ? newToken() : $_SESSION['newtoken']; ?>"  />
+				<input type="hidden" name="token" value="<?php echo $newToken; ?>"  />
 
 				<div class="titre"><i class="fa fa-link" style="color:var(--colortexttitlenotab, #25b7d3 );" ></i> <?php echo $langs->trans('ElementToLink'); ?></div>
 
