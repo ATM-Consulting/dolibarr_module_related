@@ -180,7 +180,7 @@ class ActionsRelated
 					'sourcetype',
 					false
 				);
-				if (is_array($object->linkedObjectsIds[$type]) && in_array($idRelatedObject, $object->linkedObjectsIds[$type])) {
+				if (!empty($object->linkedObjectsIds[$type]) && is_array($object->linkedObjectsIds[$type]) && in_array($idRelatedObject, $object->linkedObjectsIds[$type])) {
 					// link already exists
 					$this->errors[] = $langs->trans('RelationAlreadyExists');
 				} else {

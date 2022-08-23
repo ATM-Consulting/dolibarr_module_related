@@ -49,7 +49,7 @@ function relatedAdminPrepareHead()
     //$this->tabs = array(
     //	'entity:-tabname:Title:@related:/related/mypage.php?id=__ID__'
     //); // to remove a tab
-    complete_head_from_modules($conf, $langs, $object, $head, $h, 'related');
+    complete_head_from_modules($conf, $langs, new stdClass(), $head, $h, 'related');
 
     return $head;
 }
