@@ -302,7 +302,7 @@ class ActionsRelated
 							if (in_array($linkedObjectType, array('societe', 'contratabonnement', 'product', 'project', 'action')))
 								$showThisLink = true;
 							// si on est sur une fiche tiers et que l'objet lié est une facture, propale ou commande
-							elseif (in_array($object->element, array('societe', 'projet'))
+							elseif (in_array($object->element, array('societe', 'project'))
 									&& in_array($linkedObjectType, array('facture', 'propal', 'commande')))
 								$showThisLink = true;
 							// si on est sur une fiche événement
