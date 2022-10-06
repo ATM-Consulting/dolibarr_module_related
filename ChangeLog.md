@@ -1,6 +1,7 @@
 # ChangeLog for Related
 
 ## 1.4
+- FIX : Related bloc on projects cards is always empty *06/10/2022* - 1.4.10
 - FIX : Get unknown class from where it is already instanciated *18/05/2022* - 1.4.9
 - FIX : Remove duplicate link  *05/05/2022* - 1.4.8
 - FIX : related hook in propalcard *07/04/2022* - 1.4.7
