@@ -32,10 +32,10 @@ function relatedAdminPrepareHead()
     $h = 0;
     $head = array();
 
-    $head[$h][0] = dol_buildpath("/related/admin/related_setup.php", 1);
-    $head[$h][1] = $langs->trans("Parameters");
-    $head[$h][2] = 'settings';
-    $h++;
+//    $head[$h][0] = dol_buildpath("/related/admin/related_setup.php", 1);
+//    $head[$h][1] = $langs->trans("Parameters");
+//    $head[$h][2] = 'settings';
+//    $h++;
     $head[$h][0] = dol_buildpath("/related/admin/related_about.php", 1);
     $head[$h][1] = $langs->trans("About");
     $head[$h][2] = 'about';
@@ -49,7 +49,7 @@ function relatedAdminPrepareHead()
     //$this->tabs = array(
     //	'entity:-tabname:Title:@related:/related/mypage.php?id=__ID__'
     //); // to remove a tab
-    complete_head_from_modules($conf, $langs, $object, $head, $h, 'related');
+    complete_head_from_modules($conf, $langs, new stdClass(), $head, $h, 'related');
 
     return $head;
 }
