@@ -3,6 +3,9 @@
 ## Unreleased
 
 
+## 1.7
+
+- NEW : Ajout contexte "Demande de prix" (alias Propositions commerciales fournisseurs) - *24/01/2023* - 1.7.0
 
 ## 1.6
 - FIX : PHP 8 - *19/08/2022* - 1.6.2
