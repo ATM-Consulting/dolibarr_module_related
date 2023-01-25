@@ -156,7 +156,7 @@ class ActionsRelated
 	function doActions($parameters, &$object, &$action, $hookmanager) {
 
 		global $user;
-		
+
 		if (($action === 'add_related_link' || $action === 'delete_related_link') && !empty($user->rights->related->create)) {
 			global $langs, $conf, $user;
 			$action_orig = $action; // copy $action onto non-reference variable before resetting it
