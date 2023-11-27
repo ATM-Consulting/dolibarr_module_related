@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-
+- NEW : COMPATV19  - *27/11/2023* - 1.8.0  
 ## 1.7
 
 - NEW : Ajout contexte "Demande de prix" (alias Propositions commerciales fournisseurs) - *24/01/2023* - 1.7.0
