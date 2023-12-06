@@ -3,6 +3,10 @@
 ## Unreleased
 
 - NEW : COMPATV19  - *27/11/2023* - 1.8.0  
+    Changed Dolibarr compatibility range to 12 min - 19 max  
+    Change PHP compatibility range to 7.0 min - 8.2 max
+
+  
 ## 1.7
 
 - NEW : Ajout contexte "Demande de prix" (alias Propositions commerciales fournisseurs) - *24/01/2023* - 1.7.0
