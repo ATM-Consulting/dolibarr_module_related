@@ -23,7 +23,7 @@
 
 namespace related;
 
-if (file_exists(DOL_DOCUMENT_ROOT. '/htdocs/core/class/commonhookactions.class.php')){
+if (file_exists(DOL_DOCUMENT_ROOT. '/core/class/commonhookactions.class.php')){
 
 	/**
 	 *	Parent class of all other hook actions classes
