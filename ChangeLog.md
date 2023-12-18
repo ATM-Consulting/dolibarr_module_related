@@ -2,22 +2,27 @@
 
 ## Unreleased
 
+
+
+## Release 1.8
+
 - NEW : COMPATV19  - *27/11/2023* - 1.8.0  
     Changed Dolibarr compatibility range to 12 min - 19 max  
     Change PHP compatibility range to 7.0 min - 8.2 max
 
-  
-## 1.7
+## Release 1.7
 
 - NEW : Ajout contexte "Demande de prix" (alias Propositions commerciales fournisseurs) - *24/01/2023* - 1.7.0
 
-## 1.6
+## Release 1.6
+
 - FIX : PHP 8 - *19/08/2022* - 1.6.2
 - FIX : Compatibility V16 - newToken and family - *06/06/2022* - 1.6.1
 - NEW : Ajout d'une permission de lier / délier des éléments particuliers *23/05/2022* - 1.6.0
 - NEW : Ajout de la class TechATM pour l'affichage de la page "A propos" *11/05/2022* 1.5.0
 
-## 1.4
+## Release 1.4
+
 - FIX : Related bloc on projects cards is always empty *06/10/2022* - 1.4.10
 - FIX : Get unknown class from where it is already instanciated *18/05/2022* - 1.4.9
 - FIX : Remove duplicate link  *05/05/2022* - 1.4.8

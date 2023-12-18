@@ -57,7 +57,7 @@ class modRelated extends DolibarrModules
 		// Module label (no space allowed), used if translation string 'ModuleXXXName' not found (where XXX is value of numeric property 'numero' of module)
 		$this->name = preg_replace('/^mod/i','',get_class($this));
 		// Module description, used if translation string 'ModuleXXXDesc' not found (where XXX is value of numeric property 'numero' of module)
-		$this->description = "Description of module Related";
+		$this->description = "Links elements together";
 		// Possible values for version are: 'development', 'experimental', 'dolibarr' or version
 		$this->version = '1.8.0';
 		// Url to the file with your last numberversion of this module
