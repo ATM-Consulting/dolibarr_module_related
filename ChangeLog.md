@@ -6,6 +6,7 @@
 
 ## Release 1.8
 
+- FIX : Compat v19 with fresh install and new table creation method  - *26/07/2023* - 1.8.1
 - NEW : COMPATV19  - *27/11/2023* - 1.8.0  
     Changed Dolibarr compatibility range to 12 min - 19 max  
     Change PHP compatibility range to 7.0 min - 8.2 max
