@@ -93,7 +93,7 @@ function _search_type($type, $keyword) {
 
 	// From Dolibarr V19 tables are created at Dolibarr installation but after module activation
 	// so we need to check if table exist
-	if(!_checkTableExist($type)){
+	if(!_checkTableExist($db->prefix().$type)){
 		return array();
 	}
 
