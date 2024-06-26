@@ -60,6 +60,26 @@ function _search($keyword) {
 
 }
 
+
+
+/**
+ * @param string $table
+ * @return bool
+ */
+function _checkTableExist(string $table): bool {
+	global $db;
+	$res = $db->query('SHOW TABLES LIKE \''.$db->escape($table).'\' ');
+	if (!$res) {
+		return false;
+	}
+
+	if ($db->num_rows($res)>0) {
+		return true;
+	}else{
+		return false;
+	}
+}
+
 function _search_type($type, $keyword) {
 	global $db, $conf, $langs;
 
@@ -70,6 +90,12 @@ function _search_type($type, $keyword) {
 	$ref_field2 = '';
 	$join_to_soc = false;
 	$element ='';
+
+	// From Dolibarr V19 tables are created at Dolibarr installation but after module activation
+	// so we need to check if table exist
+	if(!_checkTableExist($db->prefix().$type)){
+		return array();
+	}
 
 	if($type == 'company') {
 		$table = MAIN_DB_PREFIX.'societe';
@@ -227,8 +253,6 @@ function _search_type($type, $keyword) {
 	} elseif (!empty($ref_field2)) {
 		$sql.=" OR t.".$ref_field2." LIKE '".$keyword."%' ";
 	}
-
-
 
 	$sql.=" LIMIT 20 ";
 	//var_dump($sql);
