@@ -59,7 +59,7 @@ class modRelated extends DolibarrModules
 		// Module description, used if translation string 'ModuleXXXDesc' not found (where XXX is value of numeric property 'numero' of module)
 		$this->description = "Links elements together";
 		// Possible values for version are: 'development', 'experimental', 'dolibarr' or version
-		$this->version = '1.8.1';
+		$this->version = '1.9.0';
 		// Url to the file with your last numberversion of this module
 		require_once __DIR__ . '/../../class/techatm.class.php';
 		$this->url_last_version = \related\TechATM::getLastModuleVersionUrl($this);
@@ -129,7 +129,7 @@ class modRelated extends DolibarrModules
 		$this->requiredby = array();	// List of modules id to disable if this one is disabled
 		$this->conflictwith = array();	// List of modules id this module is in conflict with
 		$this->phpmin = array(7,0);					// Minimum version of PHP required by module
-		$this->need_dolibarr_version = array(15,0);	// Minimum version of Dolibarr required by module
+		$this->need_dolibarr_version = array(16,0);	// Minimum version of Dolibarr required by module
 		$this->langfiles = array("related@related");
 
 		// Constants
@@ -166,7 +166,7 @@ class modRelated extends DolibarrModules
         $this->tabs = array();
 
         // Dictionaries
-	    if (! isset($conf->related->enabled))
+	    if (!isModEnabled('related'))
         {
         	$conf->related=new stdClass();
         	$conf->related->enabled=0;
