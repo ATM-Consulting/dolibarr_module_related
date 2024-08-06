@@ -256,8 +256,8 @@ class ActionsRelated extends \related\RetroCompatCommonHookActions
 		// correspond pas à un module activé (sauf certains qui ont un traitement spécial).
 		$TFakeModule = array();
 		foreach ($this::MODULENAMEMAP as $objectname => $realmodulename) {
-			if (empty($conf->{$objectname}->enabled)         // le "faux" module n'est pas activé
-				&& !empty($conf->{$realmodulename}->enabled) // le vrai module correspondant doit être activé
+			if (!isModEnabled($objectname)         // le "faux" module n'est pas activé
+				&& isModEnabled($realmodulename) // le vrai module correspondant doit être activé
 			) {
 				$TFakeModule[] = $objectname;
 				$conf->{$objectname} = new stdClass();

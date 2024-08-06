@@ -4,6 +4,11 @@
 
 
 
+## Release 1.9
+
+- FIX : Compat v20 
+  Changed Dolibarr compatibility range to 16 min - 20 max - *24/07/2024* - 1.9.0
+
 ## Release 1.8
 
 - FIX : Compat v19 with fresh install and new table creation method  - *26/07/2023* - 1.8.1
