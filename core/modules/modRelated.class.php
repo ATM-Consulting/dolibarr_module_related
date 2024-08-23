@@ -59,7 +59,7 @@ class modRelated extends DolibarrModules
 		// Module description, used if translation string 'ModuleXXXDesc' not found (where XXX is value of numeric property 'numero' of module)
 		$this->description = "Links elements together";
 		// Possible values for version are: 'development', 'experimental', 'dolibarr' or version
-		$this->version = '1.9.0';
+		$this->version = '2.0.0';
 		// Url to the file with your last numberversion of this module
 		require_once __DIR__ . '/../../class/techatm.class.php';
 		$this->url_last_version = \related\TechATM::getLastModuleVersionUrl($this);
@@ -96,7 +96,10 @@ class modRelated extends DolibarrModules
 				'propalcard',
 				'ordersuppliercard',
 				'invoicesuppliercard',
-				'supplier_proposalcard'
+				'supplier_proposalcard',
+				'webmodulecard',
+				'webinstancecard',
+				'webhostcard'
 			),
 			'triggers' => 0 // [FM] le fichier des triggers est vide, je passe à zéro
 		);
