@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-
+- NEW : DA025244 - Ajout des contextes hook webmodulecard, webinstancecard, webhostcard pour elements particuliers liées - *23/08/2024* - 2.0.0 
 
 ## Release 1.9
 
