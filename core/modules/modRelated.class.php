@@ -54,12 +54,13 @@ class modRelated extends DolibarrModules
 		// It is used to group modules in module setup page
 		$this->family = 'ATM Consulting';
 		$this->editor_name = 'ATM Consulting';
+		$this->editor_url = 'http://www.atm-consulting.fr/';
 		// Module label (no space allowed), used if translation string 'ModuleXXXName' not found (where XXX is value of numeric property 'numero' of module)
 		$this->name = preg_replace('/^mod/i','',get_class($this));
 		// Module description, used if translation string 'ModuleXXXDesc' not found (where XXX is value of numeric property 'numero' of module)
 		$this->description = "Links elements together";
 		// Possible values for version are: 'development', 'experimental', 'dolibarr' or version
-		$this->version = '1.9.1';
+		$this->version = '1.10.1';
 		// Url to the file with your last numberversion of this module
 		require_once __DIR__ . '/../../class/techatm.class.php';
 		$this->url_last_version = \related\TechATM::getLastModuleVersionUrl($this);
@@ -96,7 +97,10 @@ class modRelated extends DolibarrModules
 				'propalcard',
 				'ordersuppliercard',
 				'invoicesuppliercard',
-				'supplier_proposalcard'
+				'supplier_proposalcard',
+				'webmodulecard',
+				'webinstancecard',
+				'webhostcard'
 			),
 			'triggers' => 0 // [FM] le fichier des triggers est vide, je passe à zéro
 		);
@@ -173,8 +177,8 @@ class modRelated extends DolibarrModules
 		$this->rights[$r][0] = $this->numero + $r;	// Permission id (must not be already used)
 		$this->rights[$r][1] = $langs->trans('RightLinkAndDelink');	// Permission label
 		$this->rights[$r][3] = 1; 					// Permission by default for new user (0/1)
-		$this->rights[$r][4] = 'create';				// In php code, permission will be checked by test if ($user->hasRight("permkey", "level1", "level2"))
-		//$this->rights[$r][5] = 'level2';				// In php code, permission will be checked by test if ($user->hasRight("permkey", "level1", "level2"))
+		$this->rights[$r][4] = 'create';				// In php code, permission will be checked by test if ($user->rights->permkey->level1->level2)
+		//$this->rights[$r][5] = 'level2';				// In php code, permission will be checked by test if ($user->rights->permkey->level1->level2)
 		$r++;
 
 
