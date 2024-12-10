@@ -39,15 +39,15 @@ function _search($keyword) {
 		'ticket',
 	);
 
-	if(!empty($conf->of->enabled)) {
+	if(isModEnabled("of")) {
 		$TType[] = 'ordre_fabrication';
 	}
 
-    if(!empty($conf->asset->enabled)) {
+    if(isModEnabled("asset")) {
         $TType[] = 'asset';
     }
 
-    if(!empty($conf->assetatm->enabled)) {
+    if(isModEnabled("assetatm")) {
         $TType[] = 'assetatm';
     }
 
@@ -139,7 +139,7 @@ function _search_type($type, $keyword) {
 	elseif($type == 'invoice') {
 		$table = MAIN_DB_PREFIX.'facture';
 		$objname = 'Facture';
-		$ref_field = ((float) DOL_VERSION < 10.0 ? 'facnumber' : 'ref');
+		$ref_field = 'ref';
 		$element = 'facture';
 		$join_to_soc = true;
 	}
@@ -188,19 +188,19 @@ function _search_type($type, $keyword) {
     	$ref_field='ref';
     	$join_to_soc = true;
     }
-	else if(!empty($conf->of->enabled) && $type == 'ordre_fabrication') {
+	else if(isModEnabled("of") && $type == 'ordre_fabrication') {
 		$table=MAIN_DB_PREFIX.'assetOf';
         $objname='TAssetOf';
         $ref_field='numero';
 
 	}
-	else if(!empty($conf->asset->enabled) && $type == 'asset') {
+	else if(isModEnabled("asset") && $type == 'asset') {
 		$table=MAIN_DB_PREFIX.'asset';
         $objname='TAsset';
         $ref_field='serial_number';
         $id_field='rowid';
 	}
-	else if(!empty($conf->assetatm->enabled) && $type == 'assetatm') {
+	else if(isModEnabled("assetatm") && $type == 'assetatm') {
 		$table=MAIN_DB_PREFIX.'assetatm';
 		$objname='TAsset';
 		$ref_field='serial_number';
