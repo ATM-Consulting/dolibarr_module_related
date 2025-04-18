@@ -62,8 +62,6 @@ class ActionsRelated extends \related\RetroCompatCommonHookActions
 		'action' => '/comm/action/class/actioncomm.class.php',
 		'project' => '/projet/class/project.class.php',
 		'projet' => '/projet/class/project.class.php',
-		'ordre_fabrication' => '/ordre_fabrication_asset.class.php',
-		'asset' => '/asset/class/asset.class.php',
 		'assetatm' => '/assetatm/class/asset.class.php',
 		'contratabonnement' => '/contrat/class/contrat.class.php',
 		'ticket' => '/ticket/class/ticket.class.php',
@@ -77,8 +75,6 @@ class ActionsRelated extends \related\RetroCompatCommonHookActions
 	const CLASSNAMEMAP = array(
 		'event' => 'ActionComm',
 		'action' => 'ActionComm',
-		'ordre_fabrication' => 'TAssetOf',
-		'asset' => 'TAsset',
 		'assetatm' => 'TAsset',
 		'contratabonnement' => 'Contrat',
 		'projet' => 'Project',
@@ -94,8 +90,7 @@ class ActionsRelated extends \related\RetroCompatCommonHookActions
 	);
 
 	const IS_ABRICOT = array(
-		'asset',
-		'assetatm',
+		'assetatm'
 	);
 
 	/**
@@ -128,7 +123,6 @@ class ActionsRelated extends \related\RetroCompatCommonHookActions
 	 */
 	public $knownElements = array(
 		'project',
-		'asset',
 		'contratabonnement',
 		'projet',
 		'fichinter',

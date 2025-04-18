@@ -4,7 +4,8 @@
 
 
 
-## Release 1.10
+## Release 1.10
+- FIX DA026311 : removed references to the deprecated 'asset' and 'ordre_fabrication' elements across the codebase. This includes adjustments to class mappings, known elements, and checks for deprecated modules  - *18/04/2025* - 1.10.2
 - FIX : Compat v21   - *10/12/2024* - 1.10.1
 
 - NEW : DA025244 - Ajout des contextes hook webmodulecard, webinstancecard, webhostcard pour elements particuliers liées - *23/08/2024* - 1.10.0

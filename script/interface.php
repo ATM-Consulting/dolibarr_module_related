@@ -39,14 +39,6 @@ function _search($keyword) {
 		'ticket',
 	);
 
-	if(isModEnabled("of")) {
-		$TType[] = 'ordre_fabrication';
-	}
-
-    if(isModEnabled("asset")) {
-        $TType[] = 'asset';
-    }
-
     if(isModEnabled("assetatm")) {
         $TType[] = 'assetatm';
     }
@@ -188,18 +180,6 @@ function _search_type($type, $keyword) {
     	$ref_field='ref';
     	$join_to_soc = true;
     }
-	else if(isModEnabled("of") && $type == 'ordre_fabrication') {
-		$table=MAIN_DB_PREFIX.'assetOf';
-        $objname='TAssetOf';
-        $ref_field='numero';
-
-	}
-	else if(isModEnabled("asset") && $type == 'asset') {
-		$table=MAIN_DB_PREFIX.'asset';
-        $objname='TAsset';
-        $ref_field='serial_number';
-        $id_field='rowid';
-	}
 	else if(isModEnabled("assetatm") && $type == 'assetatm') {
 		$table=MAIN_DB_PREFIX.'assetatm';
 		$objname='TAsset';
