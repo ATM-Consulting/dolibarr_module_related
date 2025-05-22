@@ -75,7 +75,7 @@ function _checkTableExist(string $table): bool {
 function _search_type($type, $keyword) {
 	global $db, $conf, $langs;
 
-	$table = MAIN_DB_PREFIX.$type;
+	$table = $db->prefix().$type;
 	$objname = ucfirst($type);
 	$id_field = 'rowid';
 	$ref_field = 'ref';
@@ -83,108 +83,94 @@ function _search_type($type, $keyword) {
 	$join_to_soc = false;
 	$element ='';
 
-	// From Dolibarr V19 tables are created at Dolibarr installation but after module activation
-	// so we need to check if table exist
-	if(!_checkTableExist($db->prefix().$type)){
-		return array();
-	}
-
-	if($type == 'company') {
-		$table = MAIN_DB_PREFIX.'societe';
+	if ($type == 'company') {
+		$table = $db->prefix() . 'societe';
 		$objname = 'Societe';
-		$element= 'societe';
-		$ref_field='nom';
-	}
-	elseif($type == 'project') {
-		$table = MAIN_DB_PREFIX.'projet';
+		$element = 'societe';
+		$ref_field = 'nom';
+	} elseif ($type == 'project') {
+		$table = $db->prefix() . 'projet';
 		$objname = 'Project';
 		$element = 'project';
 		$join_to_soc = true;
-	}
-	elseif($type == 'task' || $type == 'project_task') {
-		$table = MAIN_DB_PREFIX.'projet_task';
+	} elseif ($type == 'task' || $type == 'project_task') {
+		$table = $db->prefix() . 'projet_task';
 		$objname = 'Task';
 		$id_field = 'rowid';
 		$ref_field = 'ref';
 		$join_to_soc = true;
-	}
-	elseif($type == 'event' || $type=='action') {
-		$table = MAIN_DB_PREFIX.'actioncomm';
+	} elseif ($type == 'event' || $type == 'action') {
+		$table = $db->prefix() . 'actioncomm';
 		$objname = 'ActionComm';
 		$id_field = 'id';
 		$ref_field = 'id';
 		$ref_field2 = 'label';
 		$element = 'actioncomm';
 		$join_to_soc = true;
-	}
-	elseif($type == 'order' || $type == 'commande') {
-		$table = MAIN_DB_PREFIX.'commande';
+	} elseif ($type == 'order' || $type == 'commande') {
+		$table = $db->prefix() . 'commande';
 		$objname = 'Commande';
 		$element = 'commande';
 		$join_to_soc = true;
-	}
-	elseif($type == 'shipping') {
-        $table = MAIN_DB_PREFIX.'expedition';
-        $objname = 'Expedition';
-        $join_to_soc = true;
-	}
-	elseif($type == 'invoice') {
-		$table = MAIN_DB_PREFIX.'facture';
+	} elseif ($type == 'shipping') {
+		$table = $db->prefix() . 'expedition';
+		$objname = 'Expedition';
+		$join_to_soc = true;
+	} elseif ($type == 'invoice') {
+		$table = $db->prefix() . 'facture';
 		$objname = 'Facture';
 		$ref_field = 'ref';
 		$element = 'facture';
 		$join_to_soc = true;
-	}
-	elseif($type == 'contact') {
-        $table = MAIN_DB_PREFIX.'socpeople';
-        $ref_field = 'lastname';
-        $element = 'socpeople';
+	} elseif ($type == 'contact') {
+		$table = $db->prefix() . 'socpeople';
+		$ref_field = 'lastname';
+		$element = 'socpeople';
 		$join_to_soc = true;
-    }
-    elseif($type == 'propal') {
-        $table = MAIN_DB_PREFIX.'propal';
-        $ref_field = 'ref';
-        $element = 'propal';
-        $join_to_soc = true;
-    }
-    elseif($type == 'product') {
-        $table = MAIN_DB_PREFIX.'product';
-        $ref_field = 'ref';
-        $element = 'product';
+	} elseif ($type == 'propal') {
+		$table = $db->prefix() . 'propal';
+		$ref_field = 'ref';
+		$element = 'propal';
+		$join_to_soc = true;
+	} elseif ($type == 'product') {
+		$table = $db->prefix() . 'product';
+		$ref_field = 'ref';
+		$element = 'product';
 
-    }
-    elseif ($type=='facture_fournisseur') {
-        $table=MAIN_DB_PREFIX.'facture_fourn';
-        //$id_field='rowid';
-        $objname='FactureFourn';
-        $ref_field='ref';
-        $element = 'facture_fourn';
+	} elseif ($type == 'facture_fournisseur') {
+		$table = $db->prefix() . 'facture_fourn';
+		//$id_field='rowid';
+		$objname = 'FactureFourn';
+		$ref_field = 'ref';
+		$element = 'facture_fourn';
 		$join_to_soc = true;
-    }
-    elseif ($type=='commande_fournisseur'){
-        $table=MAIN_DB_PREFIX.'commande_fournisseur';
-        $objname='CommandeFournisseur';
-        $ref_field='ref';
-        $element = 'commande_fournisseur';
+	} elseif ($type == 'commande_fournisseur') {
+		$table = $db->prefix() . 'commande_fournisseur';
+		$objname = 'CommandeFournisseur';
+		$ref_field = 'ref';
+		$element = 'commande_fournisseur';
 		$join_to_soc = true;
-    }
-	elseif($type == 'contrat') {
-		$table = MAIN_DB_PREFIX.'contrat';
+	} elseif ($type == 'contrat') {
+		$table = $db->prefix() . 'contrat';
 		$ref_field = 'ref';
 		$element = 'contrat';
 		$join_to_soc = true;
+	} elseif ($type == 'fichinter') {
+		$table = $db->prefix() . 'fichinter';
+		$objname = 'Fichinter';
+		$ref_field = 'ref';
+		$join_to_soc = true;
+	} else if (isModEnabled("assetatm") && $type == 'assetatm') {
+		$table = $db->prefix() . 'assetatm';
+		$objname = 'TAsset';
+		$ref_field = 'serial_number';
+		$id_field = 'rowid';
 	}
-    elseif ($type=='fichinter'){
-    	$table=MAIN_DB_PREFIX.'fichinter';
-    	$objname='Fichinter';
-    	$ref_field='ref';
-    	$join_to_soc = true;
-    }
-	else if(isModEnabled("assetatm") && $type == 'assetatm') {
-		$table=MAIN_DB_PREFIX.'assetatm';
-		$objname='TAsset';
-		$ref_field='serial_number';
-		$id_field='rowid';
+
+	// From Dolibarr V19 tables are created at Dolibarr installation but after module activation
+	// so we need to check if table exist
+	if(!_checkTableExist($table)){
+		return [];
 	}
 
 	$Tab = array();
@@ -208,11 +194,11 @@ function _search_type($type, $keyword) {
 
 	if($join_to_soc) {
 		if($type == 'task') {
-			$sql.=" LEFT JOIN ".MAIN_DB_PREFIX."projet p ON (p.rowid = t.fk_projet) ";
-			$sql.=" LEFT JOIN ".MAIN_DB_PREFIX."societe s ON (s.rowid = p.fk_soc) ";
+			$sql.=" LEFT JOIN ".$db->prefix()."projet p ON (p.rowid = t.fk_projet) ";
+			$sql.=" LEFT JOIN ".$db->prefix()."societe s ON (s.rowid = p.fk_soc) ";
 		}
 		else {
-			$sql.=" LEFT JOIN ".MAIN_DB_PREFIX."societe s ON (s.rowid = t.fk_soc) ";
+			$sql.=" LEFT JOIN ".$db->prefix()."societe s ON (s.rowid = t.fk_soc) ";
 		}
 	}
 	$sql.=" WHERE 1 ";
@@ -235,7 +221,7 @@ function _search_type($type, $keyword) {
 	}
 
 	$sql.=" LIMIT 20 ";
-	//var_dump($sql);
+//	var_dump($sql);
     //$sql="SELECT ff.ref FROM  ".MAIN_DB_PREFIX."facture_fourn ff WHERE ";
 	$res = $db->query($sql);
 
