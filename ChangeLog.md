@@ -5,6 +5,7 @@
 
 
 ## Release 1.10
+- FIX : DA026567 Empty ajax select - *2025-05-22* - 1.10.3
 - FIX DA026311 : removed references to the deprecated 'asset' and 'ordre_fabrication' elements across the codebase. This includes adjustments to class mappings, known elements, and checks for deprecated modules  - *18/04/2025* - 1.10.2
 - FIX : Compat v21   - *10/12/2024* - 1.10.1
 
