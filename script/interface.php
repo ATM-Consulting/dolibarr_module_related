@@ -43,6 +43,10 @@ function _search($keyword) {
         $TType[] = 'assetatm';
     }
 
+	if (isModEnabled('chiffrage')) {
+		$TType[] = 'chiffrage';
+	}
+
 	//$TType=array('facture_fournisseur', 'commande_fournisseur');
 	foreach($TType as $type) {
 		$Tab[$type] = _search_type($type, $keyword);
@@ -165,6 +169,11 @@ function _search_type($type, $keyword) {
 		$objname = 'TAsset';
 		$ref_field = 'serial_number';
 		$id_field = 'rowid';
+	} elseif (isModEnabled('chiffrage') && $type == 'chiffrage') {
+		$table = $db->prefix() . 'chiffrage_chiffrage';
+		$objname = 'Chiffrage';
+		$element = 'chiffrage_chiffrage';
+		$join_to_soc = true;
 	}
 
 	// From Dolibarr V19 tables are created at Dolibarr installation but after module activation
