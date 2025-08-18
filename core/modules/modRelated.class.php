@@ -60,7 +60,7 @@ class modRelated extends DolibarrModules
 		// Module description, used if translation string 'ModuleXXXDesc' not found (where XXX is value of numeric property 'numero' of module)
 		$this->description = "Links elements together";
 		// Possible values for version are: 'development', 'experimental', 'dolibarr' or version
-		$this->version = '1.10.4';
+		$this->version = '1.10.5';
 		// Url to the file with your last numberversion of this module
 		require_once __DIR__ . '/../../class/techatm.class.php';
 		$this->url_last_version = \related\TechATM::getLastModuleVersionUrl($this);
@@ -201,7 +201,9 @@ class modRelated extends DolibarrModules
 	{
 		$sql = array();
 
-		define('INC_FROM_DOLIBARR',true);
+		if (!defined('INC_FROM_DOLIBARR')) {
+			define('INC_FROM_DOLIBARR', true);
+		}
 
 		dol_include_once('/related/config.php');
 		dol_include_once('/related/script/create-maj-base.php');
