@@ -422,7 +422,7 @@ class ActionsRelated extends \related\RetroCompatCommonHookActions
 		</div>
 		<?php
 		$jsContext = [
-			'ajaxURL' => dol_buildpath('/related/script/interface.php',1),
+			'relatedBaseURL' => dol_buildpath('/related',1),
 		];
 		?>
 			<script type="text/javascript" src="<?= dol_buildpath('/related/js/related.js', 1) ?>"></script>

@@ -1,82 +1,160 @@
-const ATM_MODULE_RELATED = {
-	main(dolibarrContext) {
+/* jshint -W098: suppress the `ATM_MODULE_RELATED is declared but never used` warning */
+/* jshint -W117: suppress the `'$' is not defined` warning */
+/* jshint -W116: allow if (……) return; (without brackets) */
+(function () {
+	"use strict";
+	window.ATM_MODULE_RELATED = {
+		/**
+		 *
+		 * @param {{relatedBaseURL: string }} dolibarrContext  Contexte passé depuis PHP.
+		 */
+		main(dolibarrContext) {
+			window.addEventListener('DOMContentLoaded', () => {
+				this.moveRelatedBlocksAfterTabsAction();
+				this.cleanupDuplicateBlocks();
 
-		$(document).ready(function () {
+				const ajaxURL = `${dolibarrContext.relatedBaseURL}/script/interface.php`;
+				this.initializeAutocomplete(ajaxURL);
+			});
+		},
 
-			$('.blockrelated_content').each(function () {
-				$(this).closest('div.tabsAction').after($(this));
+		/**
+		 * Moves all .blockrelated_content elements to appear after their parent .tabsAction
+		 */
+		moveRelatedBlocksAfterTabsAction() {
+			document.querySelectorAll('.blockrelated_content').forEach(element => {
+				const tabsAction = element.closest('div.tabsAction');
+				if (tabsAction) {
+					tabsAction.insertAdjacentElement('afterend', element);
+				}
+			});
+		},
+
+		/**
+		 * Initializes the jQuery UI autocomplete for adding related objects
+		 */
+		initializeAutocomplete(ajaxURL) {
+			const $input = $('#add_related_object');
+			if (!$input.length) return;
+
+			$input.autocomplete({
+				source: (request, response) => this.fetchAutocompleteData(request, response, ajaxURL),
+				minLength: 1,
+				select: (event, ui) => this.handleAutocompleteSelect(ui),
+				open: function() {
+					this.classList.remove('ui-corner-all');
+					this.classList.add('ui-corner-top');
+				},
+				close: function() {
+					this.classList.remove('ui-corner-top');
+					this.classList.add('ui-corner-all');
+				}
 			});
 
-			$('#add_related_object').autocomplete({
-				source: function (request, response) {
-					$.ajax({
-						url: dolibarrContext.ajaxURL, dataType: "json", data: {
-							key: request.term, get: 'search'
-						}, success: function (data) {
-							var c = [];
-							$.each(data, function (i, cat) {
+			// Custom renderer for categorized items
+			$input.autocomplete().data("uiAutocomplete")._renderItem = this.renderAutocompleteItem;
+		},
 
-								var first = true;
-								$.each(cat, function (j, label) {
+		/**
+		 * Fetches autocomplete suggestions from the server
+		 */
+		fetchAutocompleteData(request, response, ajaxURL) {
+			$.ajax({
+				url: ajaxURL,
+				dataType: "json",
+				data: {
+					key: request.term,
+					get: 'search'
+				},
+				success: (data) => {
+					const items = this.transformAutocompleteData(data);
+					response(items);
+				}
+			});
+		},
 
-									if (first) {
-										c.push({value: i, label: i, object: 'title'});
-										first = false;
-									}
+		/**
+		 * Transforms server response into autocomplete items with category headers
+		 */
+		transformAutocompleteData(data) {
+			const items = [];
 
-									c.push({value: j, label: '  ' + label, object: i});
+			Object.entries(data).forEach(([category, categoryData]) => {
+				// Add category header
+				items.push({
+					value: category,
+					label: category,
+					object: 'title'
+				});
 
-								});
-
-
-							});
-
-							response(c);
-
-
-						}
+				// Add category items
+				Object.entries(categoryData).forEach(([id, label]) => {
+					items.push({
+						value: id,
+						label: '  ' + label,
+						object: category
 					});
-				}, minLength: 1, select: function (event, ui) {
-
-					if (ui.item.object == 'title') return false; else {
-						$('#id_related_object').val(ui.item.value);
-						$('#add_related_object').val(ui.item.label.trim());
-						$('#type_related_object').val(ui.item.object);
-
-						$('#bt_add_related_object').css('display', 'inline');
-
-						return false;
-					}
-
-				}, open: function (event, ui) {
-					$(this).removeClass("ui-corner-all").addClass("ui-corner-top");
-				}, close: function () {
-					$(this).removeClass("ui-corner-top").addClass("ui-corner-all");
-				}
+				});
 			});
 
-			$("#add_related_object").autocomplete().data("uiAutocomplete")._renderItem = function (ul, item) {
+			return items;
+		},
 
-				$li = $("<li />")
-					.attr("data-value", item.value)
-					.append(item.label)
-					.appendTo(ul);
-
-				if (item.object == "title") $li.css("font-weight", "bold");
-
-				return $li;
-			};
-
-
-			var blockrelated = $('div.tabsAction .blockrelated_content');
-			if (blockrelated.length == 1) {
-				if ($('.blockrelated_content').length > 1) {
-					blockrelated.remove();
-				} else {
-					blockrelated.appendTo($('div.tabsAction'));
-				}
+		/**
+		 * Handles selection of an autocomplete item
+		 */
+		handleAutocompleteSelect(ui) {
+			// Prevent selection of category headers
+			if (ui.item.object === 'title') {
+				return false;
 			}
 
-		});
-	}
-};
+			// Populate hidden fields
+			document.getElementById('id_related_object').value = ui.item.value;
+			document.getElementById('add_related_object').value = ui.item.label.trim();
+			document.getElementById('type_related_object').value = ui.item.object;
+
+			// Show the add button
+			const addButton = document.getElementById('bt_add_related_object');
+			if (addButton) {
+				addButton.style.display = 'inline';
+			}
+
+			return false;
+		},
+
+		/**
+		 * Custom renderer for autocomplete items (bold category headers)
+		 */
+		renderAutocompleteItem(ul, item) {
+			const li = document.createElement('li');
+			li.dataset.value = item.value;
+			li.textContent = item.label;
+
+			if (item.object === "title") {
+				li.style.fontWeight = "bold";
+			}
+
+			ul[0].appendChild(li);
+			return $(li);
+		},
+
+		/**
+		 * Removes duplicate .blockrelated_content blocks within .tabsAction
+		 */
+		cleanupDuplicateBlocks() {
+			const tabsAction = document.querySelector('div.tabsAction');
+			if (!tabsAction) return;
+
+			const blockrelated = tabsAction.querySelector('.blockrelated_content');
+			if (!blockrelated) return;
+
+			const allBlockrelated = document.querySelectorAll('.blockrelated_content');
+			if (allBlockrelated.length > 1) {
+				blockrelated.remove();
+			} else {
+				tabsAction.appendChild(blockrelated);
+			}
+		}
+	};
+}());
