@@ -97,20 +97,7 @@ class modRelated extends DolibarrModules
 			// d'utiliser le hook "globalcard".
 			'hooks'=>array(
 				'commonobject',
-				'actioncard',
-				'projectcard',
-				'contactcard',
-				'thirdpartycard',
-				'projecttaskcard',
-				'interventioncard',
-				'ordercard',
-				'ticketcard',
-				'contractcard',
-				'expeditioncard',
-				'invoicecard',
-				'propalcard',
-				'ordersuppliercard',
-				'invoicesuppliercard'
+				'globalcard',
 			),
 			'triggers' => 0 // [FM] le fichier des triggers est vide, je passe à zéro
 		);
