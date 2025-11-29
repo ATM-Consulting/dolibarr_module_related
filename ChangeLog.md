@@ -2,8 +2,8 @@
 
 ## Unreleased
 
-
 - NEW : Replace individual cards with 'globalcard' in module configuration - *2025-11-28* - 1.11.0
+
 ## Release 1.10
 - FIX : DA026565 Missing chiffrage element in ajax select - *2025-05-26* - 1.10.4
 - FIX : DA026567 Empty ajax select - *2025-05-22* - 1.10.3
