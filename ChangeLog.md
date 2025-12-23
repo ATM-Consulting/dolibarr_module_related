@@ -5,6 +5,8 @@
 - NEW : Replace individual cards with 'globalcard' in module configuration - *2025-11-28* - 1.11.0
 
 ## Release 1.10
+- FIX : Compat V23 - *02/12/2025* - 1.10.6
+- FIX : Warning Constant INC_FROM_DOLIBARR already defined - *18/08/2025* - 1.10.5
 - FIX : DA026565 Missing chiffrage element in ajax select - *2025-05-26* - 1.10.4
 - FIX : DA026567 Empty ajax select - *2025-05-22* - 1.10.3
 - FIX DA026311 : removed references to the deprecated 'asset' and 'ordre_fabrication' elements across the codebase. This includes adjustments to class mappings, known elements, and checks for deprecated modules  - *18/04/2025* - 1.10.2
