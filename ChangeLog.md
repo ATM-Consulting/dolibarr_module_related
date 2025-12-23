@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-
+- NEW : Replace individual cards with 'globalcard' in module configuration - *2025-11-28* - 1.11.0
 
 ## Release 1.10
 - FIX : Compat V23 - *02/12/2025* - 1.10.6
