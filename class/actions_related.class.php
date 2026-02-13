@@ -241,6 +241,16 @@ class ActionsRelated extends \related\RetroCompatCommonHookActions
 			   $user,
 			   $conf,
 			   $related_link_added;
+
+		// Needed by TRequeteCore below to query element_element links.
+		$PDOdb = null;
+		if (!class_exists('TPDOdb')) {
+			$abricotDbClass = DOL_DOCUMENT_ROOT.'/custom/abricot/includes/class/class.pdo.db.php';
+			if (file_exists($abricotDbClass)) require_once $abricotDbClass;
+		}
+		if (class_exists('TPDOdb')) {
+			$PDOdb = new TPDOdb;
+		}
 		$newToken = function_exists('newToken') ? newToken() : $_SESSION['newtoken'];
 		$error = 0; // Error counter
 
@@ -369,8 +379,11 @@ class ActionsRelated extends \related\RetroCompatCommonHookActions
 								if (method_exists($subobject, 'getLibStatut')) $statut = $subobject->getLibStatut(3);
 							}
 
-							$Tids = TRequeteCore::get_id_from_what_you_want($PDOdb, MAIN_DB_PREFIX."element_element", array('fk_source'=>$id_object,'fk_target'=>$object->id,'sourcetype'=>$linkedObjectType,'targettype'=>$object->element));
-							if (empty($Tids)) $Tids = TRequeteCore::get_id_from_what_you_want($PDOdb, MAIN_DB_PREFIX."element_element", array('fk_source'=>$object->id,'fk_target'=>$id_object,'sourcetype'=>$object->element,'targettype'=>$linkedObjectType));
+								$Tids = array();
+								if ($PDOdb) {
+									$Tids = TRequeteCore::get_id_from_what_you_want($PDOdb, MAIN_DB_PREFIX."element_element", array('fk_source'=>$id_object,'fk_target'=>$object->id,'sourcetype'=>$linkedObjectType,'targettype'=>$object->element));
+									if (empty($Tids)) $Tids = TRequeteCore::get_id_from_what_you_want($PDOdb, MAIN_DB_PREFIX."element_element", array('fk_source'=>$object->id,'fk_target'=>$id_object,'sourcetype'=>$object->element,'targettype'=>$linkedObjectType));
+								}
 
 							?>
 								<tr class="oddeven">
@@ -378,7 +391,7 @@ class ActionsRelated extends \related\RetroCompatCommonHookActions
 									<td align="center"><?php echo !empty($date_create) ? dol_print_date($date_create, 'day') : ''; ?></td>
 									<td align="center"><?php echo $statut; ?></td>
 									<td align="center">
-								<?php if ($user->hasRight('related', 'create') && !(($object->element === 'shipping' && $subobject->element === 'commande') || ($object->element === 'commande' && $subobject->element === 'shipping'))) { // On affiche la poubelle uniquement si on a la permission de le faire et s'il ne s'agit pas d'un lien entre commande et expédition ?>
+									<?php if (!empty($Tids[0]) && $user->hasRight('related', 'create') && !(($object->element === 'shipping' && $subobject->element === 'commande') || ($object->element === 'commande' && $subobject->element === 'shipping'))) { // On affiche la poubelle uniquement si on a la permission de le faire et s'il ne s'agit pas d'un lien entre commande et expédition ?>
 										<a href="?<?php echo ($object->element === 'societe' ? 'socid=' : 'id=').$object->id; ?>&token=<?php echo $newToken; ?>&action=delete_related_link&id_link=<?php echo $Tids[0]; ?>"><?php print img_picto($langs->trans("Delete"), 'delete.png') ?></a>
 								<?php } ?>
 									</td>
