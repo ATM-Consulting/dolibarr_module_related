@@ -1,44 +1,22 @@
 <?php
-/* Copyright (C) 2025 ATM Consulting
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <https://www.gnu.org/licenses/>.
- */
 	if (!defined('NOTOKENRENEWAL')) define('NOTOKENRENEWAL', 1); // Disables token renewal
 	require '../config.php';
 
-	$get = GETPOST('get', 'alpha');
+	$get = GETPOST('get','alpha');
 
-switch ($get) {
-	case 'search':
+	switch ($get) {
+		case 'search':
 
-		__out(_search(GETPOST('key')), 'json');
+			__out(_search(GETPOST('key')),'json' );
 
-		break;
+			break;
 
-	default:
+		default:
 
-		break;
-}
+			break;
+	}
 
-/**
- * Search related objects for all supported types.
- *
- * @param string $keyword Keyword to search
- * @return array          List of results grouped by type
- */
-function _search($keyword)
-{
+function _search($keyword) {
 	global $db, $conf, $langs;
 
 	$Tab = array();
@@ -61,32 +39,30 @@ function _search($keyword)
 		'ticket',
 	);
 
-	if (isModEnabled("assetatm")) {
-		$TType[] = 'assetatm';
-	}
+    if(isModEnabled("assetatm")) {
+        $TType[] = 'assetatm';
+    }
 
 	if (isModEnabled('chiffrage')) {
 		$TType[] = 'chiffrage';
 	}
 
 	//$TType=array('facture_fournisseur', 'commande_fournisseur');
-	foreach ($TType as $type) {
+	foreach($TType as $type) {
 		$Tab[$type] = _search_type($type, $keyword);
 	}
 
 	return $Tab;
+
 }
 
 
 
 /**
- * Check if a given table exists in database.
- *
- * @param string $table Table name to check
- * @return bool         True if table exists, otherwise false
+ * @param string $table
+ * @return bool
  */
-function _checkTableExist(string $table): bool
-{
+function _checkTableExist(string $table): bool {
 	global $db;
 	$res = $db->query('SHOW TABLES LIKE \''.$db->escape($table).'\' ');
 	if (!$res) {
@@ -95,20 +71,12 @@ function _checkTableExist(string $table): bool
 
 	if ($db->num_rows($res)>0) {
 		return true;
-	} else {
+	}else{
 		return false;
 	}
 }
 
-/**
- * Search objects of a given type.
- *
- * @param string $type    Object type (invoice, commande, project, ...)
- * @param string $keyword Keyword to search
- * @return array          Matching rows (id => label)
- */
-function _search_type($type, $keyword)
-{
+function _search_type($type, $keyword) {
 	global $db, $conf, $langs;
 
 	$table = $db->prefix().$type;
@@ -172,6 +140,7 @@ function _search_type($type, $keyword)
 		$table = $db->prefix() . 'product';
 		$ref_field = 'ref';
 		$element = 'product';
+
 	} elseif ($type == 'facture_fournisseur') {
 		$table = $db->prefix() . 'facture_fourn';
 		//$id_field='rowid';
@@ -195,7 +164,7 @@ function _search_type($type, $keyword)
 		$objname = 'Fichinter';
 		$ref_field = 'ref';
 		$join_to_soc = true;
-	} elseif (isModEnabled("assetatm") && $type == 'assetatm') {
+	} else if (isModEnabled("assetatm") && $type == 'assetatm') {
 		$table = $db->prefix() . 'assetatm';
 		$objname = 'TAsset';
 		$ref_field = 'serial_number';
@@ -209,7 +178,7 @@ function _search_type($type, $keyword)
 
 	// From Dolibarr V19 tables are created at Dolibarr installation but after module activation
 	// so we need to check if table exist
-	if (!_checkTableExist($table)) {
+	if(!_checkTableExist($table)){
 		return [];
 	}
 
@@ -218,29 +187,33 @@ function _search_type($type, $keyword)
 
 	$sql = "SELECT t.".$id_field." as rowid, CONCAT(t.".$ref_field." ".( empty($ref_field2) ? '' : ",' ',t.".$ref_field2 )." ) as ref ";
 
-	if ($join_to_soc) {
-		if ($type == 'task') {
+	if($join_to_soc) {
+		if($type == 'task') {
 			$sql.=",CONCAT(p.title,', ',s.nom) as client";
-		} elseif ($type == 'order' || $type == 'commande') {
+		}
+		else if($type == 'order' || $type == 'commande') {
 			$sql.=",CONCAT(s.nom , ', Date : ' , DATE_FORMAT(t.date_commande,'%m-%d-%Y')) as client";
-		} else {
+		}
+		else {
 			$sql.=",s.nom as client";
 		}
 	}
 
 	$sql.=" FROM ".$table." as t ";
 
-	if ($join_to_soc) {
-		if ($type == 'task') {
+	if($join_to_soc) {
+		if($type == 'task') {
 			$sql.=" LEFT JOIN ".$db->prefix()."projet p ON (p.rowid = t.fk_projet) ";
 			$sql.=" LEFT JOIN ".$db->prefix()."societe s ON (s.rowid = p.fk_soc) ";
-		} else {
+		}
+		else {
 			$sql.=" LEFT JOIN ".$db->prefix()."societe s ON (s.rowid = t.fk_soc) ";
 		}
 	}
 	$sql.=" WHERE 1 ";
 
-	if (!empty($element)) {
+	if(!empty($element))
+	{
 		$sql.= '  AND t.entity IN (' . getEntity($element) . ')  ';
 	}
 
@@ -257,26 +230,32 @@ function _search_type($type, $keyword)
 	}
 
 	$sql.=" LIMIT 20 ";
-	//  var_dump($sql);
-	//$sql="SELECT ff.ref FROM  ".MAIN_DB_PREFIX."facture_fourn ff WHERE ";
+//	var_dump($sql);
+    //$sql="SELECT ff.ref FROM  ".MAIN_DB_PREFIX."facture_fourn ff WHERE ";
 	$res = $db->query($sql);
 
-	if ($res === false) {
-		pre($db, true);
+	if($res === false) {
+		pre($db,true);
 	}
 
 	$nb_results = $db->num_rows($res);
 
 
-	if ($nb_results == 0) {
+	if($nb_results == 0) {
 		return array();
-	} else {
-		while ($obj = $db->fetch_object($res)) {
+	}
+	else{
+		while($obj = $db->fetch_object($res)) {
+
 			$r = $obj->ref;
-			if (!empty($obj->client))$r.=', '.$obj->client;
+			if(!empty($obj->client))$r.=', '.$obj->client;
 
 			$Tab[$obj->rowid] = $r;
+
 		}
 		return $Tab;
 	}
+
+
+
 }
