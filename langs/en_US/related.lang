@@ -5,3 +5,4 @@ ATMAbout = This module has been developed by <a href="http://www.atm-consulting.
 
 RelatedSetup = Related module setup
 RelatedAbout = About Related
+RelationAlreadyExists=This relation already exists

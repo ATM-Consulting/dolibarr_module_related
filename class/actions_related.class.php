@@ -68,7 +68,6 @@ class ActionsRelated extends \related\RetroCompatCommonHookActions
 		'action' => '/comm/action/class/actioncomm.class.php',
 		'project' => '/projet/class/project.class.php',
 		'projet' => '/projet/class/project.class.php',
-		'assetatm' => '/assetatm/class/asset.class.php',
 		'contratabonnement' => '/contrat/class/contrat.class.php',
 		'ticket' => '/ticket/class/ticket.class.php',
 		'fichinter' => '/fichinter/class/fichinter.class.php',
@@ -81,7 +80,6 @@ class ActionsRelated extends \related\RetroCompatCommonHookActions
 	const CLASSNAMEMAP = array(
 		'event' => 'ActionComm',
 		'action' => 'ActionComm',
-		'assetatm' => 'TAsset',
 		'contratabonnement' => 'Contrat',
 		'projet' => 'Project',
 		'fichinter' => 'Fichinter',
@@ -117,6 +115,53 @@ class ActionsRelated extends \related\RetroCompatCommonHookActions
 	);
 
 	public $relatedLinkAdded = false;
+
+	/**
+	 * Resolve rowid in llx_element_element for a relation between current object and linked object.
+	 *
+	 * @param CommonObject $object          Current object
+	 * @param string       $linkedObjectType Linked object element type
+	 * @param int          $linkedObjectId   Linked object id
+	 * @return int                           Rowid in element_element, 0 if not found
+	 */
+	protected function getElementElementRowid($object, $linkedObjectType, $linkedObjectId)
+	{
+		global $db;
+
+		$objectId = (int) $object->id;
+		$linkedId = (int) $linkedObjectId;
+		$objectElement = $db->escape($object->element);
+		$linkedElement = $db->escape($linkedObjectType);
+
+		$sql = 'SELECT rowid FROM ' . MAIN_DB_PREFIX . "element_element
+			WHERE
+				(
+					fk_source = " . $linkedId . "
+					AND fk_target = " . $objectId . "
+					AND sourcetype = '" . $linkedElement . "'
+					AND targettype = '" . $objectElement . "'
+				)
+				OR
+				(
+					fk_source = " . $objectId . "
+					AND fk_target = " . $linkedId . "
+					AND sourcetype = '" . $objectElement . "'
+					AND targettype = '" . $linkedElement . "'
+				)
+			ORDER BY rowid ASC";
+
+		$resql = $db->query($sql);
+		if (!$resql) {
+			return 0;
+		}
+
+		$obj = $db->fetch_object($resql);
+		if (empty($obj->rowid)) {
+			return 0;
+		}
+
+		return (int) $obj->rowid;
+	}
 
 	/**
 	 * liste des elements pris en charge nativement par Dolibarr
@@ -190,10 +235,14 @@ class ActionsRelated extends \related\RetroCompatCommonHookActions
 						$db->rollback();
 						$this->errors[] = $langs->trans('RelationCantBeAdded');
 					} else {
-						$this->relatedLinkAdded = true;
-						include_once DOL_DOCUMENT_ROOT . '/core/class/interfaces.class.php';
-						$triggers = new Interfaces($db);
-						$restrigger = $triggers->runTrigger('RELATED_ADD_LINK', $object, $user, $langs, $conf);
+							$this->relatedLinkAdded = true;
+							include_once DOL_DOCUMENT_ROOT . '/core/class/interfaces.class.php';
+							$triggers = new Interfaces($db);
+						if (method_exists($triggers, 'runTrigger')) {
+							$restrigger = $triggers->runTrigger('RELATED_ADD_LINK', $object, $user, $langs, $conf);
+						} else {
+							$restrigger = $triggers->run_triggers('RELATED_ADD_LINK', $object, $user, $langs, $conf);
+						}
 						if ($restrigger < 0) {
 							$db->rollback();
 							$this->errors = array_merge($this->errors, $triggers->errors);
@@ -369,8 +418,7 @@ class ActionsRelated extends \related\RetroCompatCommonHookActions
 								if (method_exists($subobject, 'getLibStatut')) $statut = $subobject->getLibStatut(3);
 							}
 
-							$Tids = TRequeteCore::get_id_from_what_you_want($PDOdb, MAIN_DB_PREFIX."element_element", array('fk_source'=>$id_object,'fk_target'=>$object->id,'sourcetype'=>$linkedObjectType,'targettype'=>$object->element));
-							if (empty($Tids)) $Tids = TRequeteCore::get_id_from_what_you_want($PDOdb, MAIN_DB_PREFIX."element_element", array('fk_source'=>$object->id,'fk_target'=>$id_object,'sourcetype'=>$object->element,'targettype'=>$linkedObjectType));
+								$linkRowid = $this->getElementElementRowid($object, $linkedObjectType, $id_object);
 
 							?>
 								<tr class="oddeven">
@@ -378,9 +426,9 @@ class ActionsRelated extends \related\RetroCompatCommonHookActions
 									<td align="center"><?php echo !empty($date_create) ? dol_print_date($date_create, 'day') : ''; ?></td>
 									<td align="center"><?php echo $statut; ?></td>
 									<td align="center">
-								<?php if ($user->hasRight('related', 'create') && !(($object->element === 'shipping' && $subobject->element === 'commande') || ($object->element === 'commande' && $subobject->element === 'shipping'))) { // On affiche la poubelle uniquement si on a la permission de le faire et s'il ne s'agit pas d'un lien entre commande et expédition ?>
-										<a href="?<?php echo ($object->element === 'societe' ? 'socid=' : 'id=').$object->id; ?>&token=<?php echo $newToken; ?>&action=delete_related_link&id_link=<?php echo $Tids[0]; ?>"><?php print img_picto($langs->trans("Delete"), 'delete.png') ?></a>
-								<?php } ?>
+									<?php if ($user->hasRight('related', 'create') && $linkRowid > 0 && !(($object->element === 'shipping' && $subobject->element === 'commande') || ($object->element === 'commande' && $subobject->element === 'shipping'))) { // On affiche la poubelle uniquement si on a la permission de le faire et s'il ne s'agit pas d'un lien entre commande et expédition ?>
+											<a href="?<?php echo ($object->element === 'societe' ? 'socid=' : 'id=').$object->id; ?>&token=<?php echo $newToken; ?>&action=delete_related_link&id_link=<?php echo $linkRowid; ?>"><?php print img_picto($langs->trans("Delete"), 'delete.png') ?></a>
+									<?php } ?>
 									</td>
 								</tr>
 								<?php
@@ -510,9 +558,7 @@ class ActionsRelated extends \related\RetroCompatCommonHookActions
 	 */
 	public function addMoreActionsButtons($parameters, &$object, &$action, $hookmanager)
 	{
-		if ( $parameters['currentcontext']=='actioncard' || $parameters['currentcontext']=='contactcard' || $parameters['currentcontext']=='globalcard') {
-			if (!empty($object))return $this->blockRelated($parameters, $object, $action, $hookmanager, "width:50%;clear:both;margin-bottom:20px;");
-		}
+		// Disabled on purpose: block is rendered through showLinkedObjectBlock().
 		return 0;
 	}
 
