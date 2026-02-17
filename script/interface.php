@@ -21,9 +21,9 @@
 
 switch ($get) {
 	case 'search':
-
-		__out(_search(GETPOST('key')), 'json');
-
+		header('Content-Type: application/json; charset=UTF-8');
+		echo json_encode(search(GETPOST('key', 'alpha')), JSON_UNESCAPED_UNICODE);
+		exit;
 		break;
 
 	default:
@@ -37,7 +37,7 @@ switch ($get) {
  * @param string $keyword Keyword to search
  * @return array          List of results grouped by type
  */
-function _search($keyword)
+function search($keyword)
 {
 	global $db, $conf, $langs;
 
@@ -61,17 +61,13 @@ function _search($keyword)
 		'ticket',
 	);
 
-	if (isModEnabled("assetatm")) {
-		$TType[] = 'assetatm';
-	}
-
 	if (isModEnabled('chiffrage')) {
 		$TType[] = 'chiffrage';
 	}
 
 	//$TType=array('facture_fournisseur', 'commande_fournisseur');
 	foreach ($TType as $type) {
-		$Tab[$type] = _search_type($type, $keyword);
+		$Tab[$type] = searchType($type, $keyword);
 	}
 
 	return $Tab;
@@ -107,7 +103,7 @@ function _checkTableExist(string $table): bool
  * @param string $keyword Keyword to search
  * @return array          Matching rows (id => label)
  */
-function _search_type($type, $keyword)
+function searchType($type, $keyword)
 {
 	global $db, $conf, $langs;
 
@@ -195,11 +191,6 @@ function _search_type($type, $keyword)
 		$objname = 'Fichinter';
 		$ref_field = 'ref';
 		$join_to_soc = true;
-	} elseif (isModEnabled("assetatm") && $type == 'assetatm') {
-		$table = $db->prefix() . 'assetatm';
-		$objname = 'TAsset';
-		$ref_field = 'serial_number';
-		$id_field = 'rowid';
 	} elseif (isModEnabled('chiffrage') && $type == 'chiffrage') {
 		$table = $db->prefix() . 'chiffrage_chiffrage';
 		$objname = 'Chiffrage';
@@ -215,6 +206,8 @@ function _search_type($type, $keyword)
 
 	$Tab = array();
 
+
+	$keyword = $db->escape($keyword);
 
 	$sql = "SELECT t.".$id_field." as rowid, CONCAT(t.".$ref_field." ".( empty($ref_field2) ? '' : ",' ',t.".$ref_field2 )." ) as ref ";
 
@@ -258,11 +251,11 @@ function _search_type($type, $keyword)
 
 	$sql.=" LIMIT 20 ";
 	//  var_dump($sql);
-	//$sql="SELECT ff.ref FROM  ".MAIN_DB_PREFIX."facture_fourn ff WHERE ";
+	//$sql="SELECT ff.ref FROM  ".$db->prefix()."facture_fourn ff WHERE ";
 	$res = $db->query($sql);
 
 	if ($res === false) {
-		pre($db, true);
+		return array();
 	}
 
 	$nb_results = $db->num_rows($res);

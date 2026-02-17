@@ -3,6 +3,7 @@
 ## Unreleased
 
 ## Release 1.11
+- FIX : Remove remaining Abricot dependency and replace relation rowid lookup with native Dolibarr SQL - *2026-02-17* - 1.11.1
 - NEW : Replace individual cards with 'globalcard' in module configuration - *2025-11-28* - 1.11.0
 
 ## Release 1.10
