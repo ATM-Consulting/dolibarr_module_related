@@ -22,7 +22,7 @@
 switch ($get) {
 	case 'search':
 		header('Content-Type: application/json; charset=UTF-8');
-		echo json_encode(_search(GETPOST('key')), JSON_UNESCAPED_UNICODE);
+		echo json_encode(search(GETPOST('key')), JSON_UNESCAPED_UNICODE);
 		exit;
 		break;
 
@@ -37,7 +37,7 @@ switch ($get) {
  * @param string $keyword Keyword to search
  * @return array          List of results grouped by type
  */
-function _search($keyword)
+function search($keyword)
 {
 	global $db, $conf, $langs;
 
@@ -251,7 +251,7 @@ function searchType($type, $keyword)
 
 	$sql.=" LIMIT 20 ";
 	//  var_dump($sql);
-	//$sql="SELECT ff.ref FROM  ".MAIN_DB_PREFIX."facture_fourn ff WHERE ";
+	//$sql="SELECT ff.ref FROM  ".$db->prefix()."facture_fourn ff WHERE ";
 	$res = $db->query($sql);
 
 	if ($res === false) {

@@ -188,8 +188,6 @@ class modRelated extends DolibarrModules
 		}
 
 		dol_include_once('/related/config.php');
-		dol_include_once('/related/script/create-maj-base.php');
-
 		$result=$this->_load_tables('/related/sql/');
 
 		return $this->_init($sql, $options);

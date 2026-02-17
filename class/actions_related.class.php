@@ -133,7 +133,7 @@ class ActionsRelated extends \related\RetroCompatCommonHookActions
 		$objectElement = $db->escape($object->element);
 		$linkedElement = $db->escape($linkedObjectType);
 
-		$sql = 'SELECT rowid FROM ' . MAIN_DB_PREFIX . "element_element
+		$sql = 'SELECT rowid FROM ' . $db->prefix() . "element_element
 			WHERE
 				(
 					fk_source = " . $linkedId . "
@@ -152,6 +152,10 @@ class ActionsRelated extends \related\RetroCompatCommonHookActions
 
 		$resql = $db->query($sql);
 		if (!$resql) {
+			dol_syslog(
+				__METHOD__ . ' SQL error while searching relation rowid: ' . $db->lasterror(),
+				LOG_ERR
+			);
 			return 0;
 		}
 
@@ -235,9 +239,9 @@ class ActionsRelated extends \related\RetroCompatCommonHookActions
 						$db->rollback();
 						$this->errors[] = $langs->trans('RelationCantBeAdded');
 					} else {
-							$this->relatedLinkAdded = true;
-							include_once DOL_DOCUMENT_ROOT . '/core/class/interfaces.class.php';
-							$triggers = new Interfaces($db);
+						$this->relatedLinkAdded = true;
+						include_once DOL_DOCUMENT_ROOT . '/core/class/interfaces.class.php';
+						$triggers = new Interfaces($db);
 						if (method_exists($triggers, 'runTrigger')) {
 							$restrigger = $triggers->runTrigger('RELATED_ADD_LINK', $object, $user, $langs, $conf);
 						} else {

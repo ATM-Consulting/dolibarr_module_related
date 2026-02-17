@@ -117,7 +117,7 @@ class InterfaceRelatedtrigger
 
 		/* POUR SUPPRESSION AUTO DES DEPENDANCES (se déclenchait sans raisons)
 
-		$sql = 'DELETE FROM '.MAIN_DB_PREFIX.'element_element WHERE fk_target = '.$object->id.' AND targettype = "'.$this->db->escape($object->element).'"';
+		$sql = 'DELETE FROM '.$db->prefix().'element_element WHERE fk_target = '.$object->id.' AND targettype = "'.$this->db->escape($object->element).'"';
 		$this->db->query($sql);
 
 		dol_syslog(
