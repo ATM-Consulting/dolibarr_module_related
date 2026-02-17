@@ -124,7 +124,7 @@ class ActionsRelated extends \related\RetroCompatCommonHookActions
 	 * @param int          $linkedObjectId   Linked object id
 	 * @return int                           Rowid in element_element, 0 if not found
 	 */
-	protected function getElementElementRowid($object, $linkedObjectType, $linkedObjectId)
+	protected function getElementElementRowid(CommonObject $object, string $linkedObjectType, int $linkedObjectId): int
 	{
 		global $db;
 

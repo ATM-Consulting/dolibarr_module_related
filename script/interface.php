@@ -22,7 +22,7 @@
 switch ($get) {
 	case 'search':
 		header('Content-Type: application/json; charset=UTF-8');
-		echo json_encode(search(GETPOST('key')), JSON_UNESCAPED_UNICODE);
+		echo json_encode(search(GETPOST('key', 'alpha')), JSON_UNESCAPED_UNICODE);
 		exit;
 		break;
 
