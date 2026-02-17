@@ -9,6 +9,7 @@ RelatedAbout = A propos du module Related
 AddRelated=Ajouter ce lien
 ElementToLink=Elements particuliers liés
 RelationAdded=Relation ajoutée
+RelationAlreadyExists=Cette relation existe déjà
 CantInstanciateClass = Classe introuvable: %s
 
 RightLinkAndDelink=Lier / délier des éléments particuliers
