@@ -510,17 +510,20 @@ class ActionsRelated extends \related\RetroCompatCommonHookActions
 					  }
 					});
 
-					$( "#add_related_object" ).autocomplete().data("uiAutocomplete")._renderItem = function( ul, item ) {
+					const relatedWidget = $( "#add_related_object" ).autocomplete().data("uiAutocomplete");
+					if (relatedWidget) {
+						relatedWidget._renderItem = function( ul, item ) {
 
-						  $li = $( "<li />" )
-								.attr( "data-value", item.value )
-								.append( item.label )
-								.appendTo( ul );
+							  $li = $( "<li />" )
+									.attr( "data-value", item.value )
+									.append( item.label )
+									.appendTo( ul );
 
-						  if(item.object=="title") $li.css("font-weight","bold");
+							  if(item.object=="title") $li.css("font-weight","bold");
 
-						  return $li;
-					};
+							  return $li;
+						};
+					}
 
 
 					var blockrelated = $('div.tabsAction .blockrelated_content');
